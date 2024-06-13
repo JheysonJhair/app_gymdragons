@@ -188,18 +188,18 @@ function AppLayout() {
                 <div className="parent-icon">
                   <i className="bx bx-calendar-check" />
                 </div>
-                <div className="menu-title">Asistencias</div>
+                <div className="menu-title">Asistencia</div>
               </a>
 
               <ul>
                 <li>
-                  <NavLink to="/area/marcarasistencia/">
+                  <NavLink to="/area/mark-assistance/">
                     <i className="bx bx-radio-circle" />
                     Marcar asistencia
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/area/asistencias/">
+                  <NavLink to="/area/assists/">
                     <i className="bx bx-radio-circle" />
                     Asistencias
                   </NavLink>
@@ -207,28 +207,12 @@ function AppLayout() {
               </ul>
             </li>
             <li>
-              <a className="has-arrow" href="#">
+              <NavLink to="/area/membership/">
                 <div className="parent-icon">
                   <i className="bx bx-grid-alt" />
                 </div>
-                <div className="menu-title">Membresias</div>
-              </a>
-              <ul>
-              <li>
-                  {" "}
-                  <a href="table-basic-table.html">
-                    <i className="bx bx-radio-circle" />
-                    Membresias
-                  </a>
-                </li>
-                <li>
-                  {" "}
-                  <a href="table-basic-table.html">
-                    <i className="bx bx-radio-circle" />
-                    Nueva Membresia
-                  </a>
-                </li>
-              </ul>
+                <div className="menu-title">Membresía</div>
+              </NavLink>
             </li>
             {/* <li className="menu-label">Informes &amp; Gráficos</li>
             <li>

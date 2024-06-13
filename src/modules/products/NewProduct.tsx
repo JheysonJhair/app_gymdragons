@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
 export function NewProduct() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     const imagePreview = document.getElementById(
@@ -73,7 +71,7 @@ export function NewProduct() {
                         className="form-control"
                         id="inputProductDescription"
                         rows={3}
-                         placeholder="Ingrese alguna descripcion"
+                        placeholder="Ingrese alguna descripcion"
                         defaultValue={""}
                       />
                     </div>

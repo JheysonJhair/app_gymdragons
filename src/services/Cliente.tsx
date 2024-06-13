@@ -1,4 +1,4 @@
-import { Client } from "../types/Cliente";
+import { Client } from "../types/Client";
 
 interface ApiResponseAll {
   msg: string;

@@ -31,8 +31,12 @@ export function HomePage() {
   const dataMultiLinea = {
     series: [
       {
-        name: "Serie 1",
+        name: "Ventas",
         data: [30, 40, 35, 50, 49, 60, 70, 91, 125],
+      },
+      {
+        name: "Clientes",
+        data: [10, 80, 25, 52, 29, 60, 74, 98, 205],
       },
     ],
     options: {
@@ -128,7 +132,7 @@ export function HomePage() {
           </div>
         </div>
         <div className="row">
-          <div className="col-12 col-lg-6 d-flex">
+          <div className="col-12 col-lg-7 d-flex">
             <div className="card radius-10 w-100">
               <div className="card-header">
                 <div className="d-flex align-items-center">
@@ -147,7 +151,7 @@ export function HomePage() {
               </div>
             </div>
           </div>
-          <div className="col-12 col-lg-6 d-flex">
+          <div className="col-12 col-lg-5 d-flex">
             <div className="card radius-10 w-100">
               <div className="card-header">
                 <div className="d-flex align-items-center">

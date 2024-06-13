@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
 
-import { Client } from "../../types/Cliente";
+import { Client } from "../../types/Client";
 import { obtenerClientes } from "../../services/Cliente";
 
 export function Clients() {

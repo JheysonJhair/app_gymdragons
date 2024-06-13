@@ -4,10 +4,10 @@ import {
   obtenerClientePorID,
   obtenerClientePorDNI,
 } from "../../services/Cliente";
-import { Cliente } from "../../types/Cliente";
+import { Client } from "../../types/Client";
 
 export function Membresias() {
-  const [cliente, setCliente] = useState<Cliente | null>(null);
+  const [cliente, setCliente] = useState<Client | null>(null);
 
   const buscarClientePorDNI = async (dni: string) => {
     const clienteObtenido = await obtenerClientePorDNI(dni);
@@ -55,7 +55,7 @@ export function Membresias() {
                 <div className="row mb-3">
                   <div className="col-sm-6">
                     <NavLink
-                      to="/area/newcliente/"
+                      to="/area/new-client/"
                       className="btn btn-danger btn-block"
                     >
                       <i className="bx bx-user-plus"></i> Nuevo cliente
@@ -288,9 +288,12 @@ export function Membresias() {
               <div className="card-body">
                 <div className="row mb-4">
                   <div className="col">
-                    <button className="btn btn-danger btn-block">
+                    <NavLink
+                      to="/area/membership/"
+                      className="btn btn-danger btn-block"
+                    >
                       <i className="bx bx-purchase-tag"></i> Nueva membresía
-                    </button>
+                    </NavLink>
                   </div>
                   <div className="col">
                     <button className="btn btn-danger btn-block">

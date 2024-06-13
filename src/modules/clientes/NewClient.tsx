@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { crearCliente } from "../../services/Cliente";
-import { Client, ErrorMessages } from "../../types/Cliente";
+import { Client, ErrorMessages } from "../../types/Client";
 import { useNavigate } from "react-router-dom";
 import {
   validateRequiredField,

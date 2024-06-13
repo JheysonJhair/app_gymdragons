@@ -9,8 +9,10 @@ import { Membresias } from "../pages/membresia/Membresia";
 import { NewClient } from "../modules/clientes/NewClient";
 import { Products } from "../modules/products/Products";
 import { NewProduct } from "../modules/products/NewProduct";
-import { MarcarAsistencia } from "../modules/asistencias/MarcarAsistencia";
+import { MarkAssistance } from "../modules/Assists/MarkAssistance";
 import { DetailProduct } from "../modules/products/DetailProduct";
+import { Assists } from "../modules/Assists/Assists";
+import { Membership } from "../modules/membership/Membership";
 
 const appRouter = [
   {
@@ -51,8 +53,16 @@ const appRouter = [
         element: <NewClient />,
       },
       {
-        path: "/area/marcarasistencia/",
-        element: <MarcarAsistencia />,
+        path: "/area/mark-assistance/",
+        element: <MarkAssistance />,
+      },
+      {
+        path: "/area/assists/",
+        element: <Assists />,
+      },
+      {
+        path: "/area/membership/",
+        element: <Membership />,
       },
       /*ADMINISTRADOR EXTRA*/
       {

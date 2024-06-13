@@ -4,9 +4,9 @@ import {
   obtenerClientePorID,
   obtenerClientePorDNI,
 } from "../../services/Cliente";
-import { Client } from "../../types/Cliente";
+import { Client } from "../../types/Client";
 
-export function MarcarAsistencia() {
+export function MarkAssistance() {
   const [cliente, setCliente] = useState<Client | null>(null);
 
   const buscarClientePorDNI = async (dni: string) => {
