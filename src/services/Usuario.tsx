@@ -1,11 +1,11 @@
 import { User } from "../types/User";
-
 interface ApiResponse {
   msg: string;
   success: boolean;
   data: User[];
 }
 
+//---------------------------------------------------------------- GET USER
 export async function obtenerUsuarios(): Promise<User[]> {
   try {
     const response = await fetch("https://zonafitbk.ccontrolz.com/api/user");
@@ -23,20 +23,18 @@ export async function obtenerUsuarios(): Promise<User[]> {
   }
 }
 
+//---------------------------------------------------------------- POST USER
 export async function crearUsuario(
   usuario: Partial<User>
 ): Promise<{ msg: string; success: boolean }> {
   try {
-    const response = await fetch(
-      "https://zonafitbk.ccontrolz.com/api/user",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(usuario),
-      }
-    );
+    const response = await fetch("https://zonafitbk.ccontrolz.com/api/user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(usuario),
+    });
     if (!response.ok) {
       throw new Error("Error al crear el usuario");
     }
@@ -48,6 +46,7 @@ export async function crearUsuario(
   }
 }
 
+//---------------------------------------------------------------- PUT USER
 export async function actualizarUsuario(usuario: Partial<User>): Promise<void> {
   try {
     const url = `https://zonafitbk.ccontrolz.com/api/user/update`;
@@ -66,6 +65,7 @@ export async function actualizarUsuario(usuario: Partial<User>): Promise<void> {
   }
 }
 
+//---------------------------------------------------------------- GET BY ID USER
 export async function obtenerUsuarioPorId(
   usuarioId: number
 ): Promise<User | null> {
@@ -85,7 +85,7 @@ export async function obtenerUsuarioPorId(
     return null;
   }
 }
-
+//---------------------------------------------------------------- DELETE USER
 export async function eliminarUsuario(usuarioId: number): Promise<void> {
   try {
     const url = `https://zonafitbk.ccontrolz.com/api/user/${usuarioId}`;

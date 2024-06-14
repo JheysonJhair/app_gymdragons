@@ -5,14 +5,16 @@ import { HomePage } from "../pages/Home";
 import { Users } from "../modules/user/Users";
 import { NewUser } from "../modules/user/NewUser";
 import { Clients } from "../modules/clientes/Clients";
-import { Membresias } from "../pages/membresia/Membresia";
+import { MembershipPayment } from "../pages/membresia/MembershipPayment";
 import { NewClient } from "../modules/clientes/NewClient";
 import { Products } from "../modules/products/Products";
 import { NewProduct } from "../modules/products/NewProduct";
 import { MarkAssistance } from "../modules/Assists/MarkAssistance";
 import { DetailProduct } from "../modules/products/DetailProduct";
 import { Assists } from "../modules/Assists/Assists";
-import { Membership } from "../modules/membership/Membership";
+import { Memberships } from "../modules/membership/Membership";
+import { Reports } from "../modules/reports/Reports";
+import { ReportsTable } from "../modules/reports/ReportsTable";
 
 const appRouter = [
   {
@@ -30,7 +32,7 @@ const appRouter = [
       },
       {
         path: "/operations/membership-payment/",
-        element: <Membresias />,
+        element: <MembershipPayment />,
       },
       {
         path: "/area/products/",
@@ -62,7 +64,7 @@ const appRouter = [
       },
       {
         path: "/area/membership/",
-        element: <Membership />,
+        element: <Memberships />,
       },
       /*ADMINISTRADOR EXTRA*/
       {
@@ -72,6 +74,14 @@ const appRouter = [
       {
         path: "/area/new-user/",
         element: <NewUser />,
+      },
+      {
+        path: "/area/reports/",
+        element: <Reports />,
+      },
+      {
+        path: "/area/reports-table/",
+        element: <ReportsTable />,
       },
       {
         path: "*",

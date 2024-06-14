@@ -37,6 +37,7 @@ export function Reports() {
       labels: ["Equipo A", "Equipo B", "Equipo C", "Equipo D", "Equipo E"],
     } as ApexOptions,
   };
+
   const dataMultiLinea = {
     series: [
       {
@@ -128,7 +129,10 @@ export function Reports() {
                 <h6 className="mb-0 text-uppercase">Pie Chart</h6>
                 <hr />
                 <div className="card py-3">
-                  <div className="card-body" style={{ paddingTop: "40px" ,paddingBottom: "40px" }}>
+                  <div
+                    className="card-body"
+                    style={{ paddingTop: "40px", paddingBottom: "40px" }}
+                  >
                     <Chart
                       options={dataCircular.options}
                       series={dataCircular.series}

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import Swal from "sweetalert2";
-import { crearUsuario } from "../../services/Usuario";
-import { User } from "../../types/User";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+
+import { User } from "../../types/User";
+import { crearUsuario } from "../../services/Usuario";
 import {
   validateRequiredField,
   validateDNI,
@@ -119,7 +120,7 @@ export function NewUser() {
       case "Password":
         return validatePassword(value) || validateRequiredField(value) || null;
       default:
-        return validateRequiredField(value);
+        return validateRequiredField(value) || null;
     }
   };
 

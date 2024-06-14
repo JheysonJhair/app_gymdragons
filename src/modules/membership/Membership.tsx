@@ -1,52 +1,189 @@
+import { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { useState } from "react";
-const membresias = [
-  {
-    IdMembreship: 1,
-    Name: "PLAN UNIVERSITARIO",
-    Price: 2.5,
-    Time: 20,
-    Enabled: true,
-  },
-  {
-    IdMembreship: 2,
-    Name: "PUBLICO GENERAL",
-    Price: 3.0,
-    Time: 15,
-    Enabled: true,
-  },
-  {
-    IdMembreship: 3,
-    Name: "INTERDIARIO O MEDIO MES",
-    Price: 1.75,
-    Time: 30,
-    Enabled: true,
-  },
-];
+import Swal from "sweetalert2";
 
-export function Membership() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [membresiasPerPage] = useState(9);
+import { Membership } from "../../types/Membership";
+import {
+  getMembresias,
+  addMembresia,
+  deleteMembresia,
+} from "../../services/Membresias";
+import {
+  validateRequiredField,
+  validatePositiveNumber,
+} from "../../utils/validations";
 
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const indexOfLastmembresia = currentPage * membresiasPerPage;
-  const indexOfFirstmembresia = indexOfLastmembresia - membresiasPerPage;
-  const currentmembresias = membresias.slice(
-    indexOfFirstmembresia,
-    indexOfLastmembresia
+export function Memberships() {
+  const [membresias, setMembresias] = useState<Membership[]>([]);
+  const [newMembresia, setNewMembresia] = useState<Membership>({
+    Name: "",
+    Price: "",
+    Time: "",
+    Enabled: true,
+  });
+  const [errors, setErrors] = useState<{ [key in keyof Membership]?: string }>(
+    {}
   );
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [membresiasPerPage] = useState(5);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredmembresias = currentmembresias.filter((membresia) =>
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const indexOfLastMembresia = currentPage * membresiasPerPage;
+  const indexOfFirstMembresia = indexOfLastMembresia - membresiasPerPage;
+  const currentMembresias = membresias.slice(
+    indexOfFirstMembresia,
+    indexOfLastMembresia
+  );
+
+  const filteredMembresias = currentMembresias.filter((membresia) =>
     Object.values(membresia).some((value) =>
       value.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
 
-  const handleDeleteMembreship = async (id: number) => {
+  //---------------------------------------------------------------- GET MEMBERSHIPS
+  useEffect(() => {
+    const fetchMembresias = async () => {
+      const data = await getMembresias();
+      setMembresias(data);
+    };
+    fetchMembresias();
+  }, []);
+
+  //---------------------------------------------------------------- CHANGE INPUT
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { id, value } = e.target;
+
+    if (id === "Enabled") {
+      setNewMembresia({
+        ...newMembresia,
+        [id]: value === "true" ? true : false,
+      });
+    } else {
+      setNewMembresia({
+        ...newMembresia,
+        [id]: id === "Price" || id === "Time" ? Number(value) : value,
+      });
+    }
+
+    const error = validateField(id as keyof Membership, value);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [id as keyof Membership]: error || undefined,
+    }));
+  };
+
+  //---------------------------------------------------------------- POST INPUT
+  const handleFormSubmit = async () => {
+    const formErrors: { [key in keyof Membership]?: string } = {};
+    let isValid = true;
+
+    Object.entries(newMembresia).forEach(([key, value]) => {
+      const error = validateField(
+        key as keyof Membership,
+        value as string | number
+      );
+      formErrors[key as keyof Membership] = error;
+      if (error) isValid = false;
+    });
+
+    setErrors(formErrors);
+
+    if (!isValid) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Por favor, complete los campos correctamente.",
+      });
+      return;
+    }
+    console.log(newMembresia);
+    try {
+      await addMembresia(newMembresia);
+      const data = await getMembresias();
+      setMembresias(data);
+      setNewMembresia({
+        Name: "",
+        Price: "",
+        Time: "",
+        Enabled: true,
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Éxito!",
+        text: "La membresía ha sido guardada correctamente.",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un problema al guardar la membresía. Por favor, inténtelo de nuevo.",
+      });
+    }
+  };
+
+  //------------------------------------- VALIDATION
+  const validateField = (
+    name: keyof Membership,
+    value: string | number
+  ): string | undefined => {
+    switch (name) {
+      case "Name":
+        return validateRequiredField(value as string);
+      case "Price":
+        return validatePositiveNumber(value as number);
+      case "Time":
+        return validatePositiveNumber(value as number);
+      default:
+        return undefined;
+    }
+  };
+
+  //---------------------------------------------------------------- DELETE INPUT
+  const handleDeleteMembership = async (id: any) => {
     console.log(id);
+    try {
+      const confirmacion = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "¡No podrás revertir esto!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, eliminarla",
+        cancelButtonText: "Cancelar",
+      });
+
+      if (confirmacion.isConfirmed) {
+        const response = await deleteMembresia(id);
+        if (response.success) {
+          Swal.fire({
+            icon: "success",
+            title: "¡Éxito!",
+            text: response.msg,
+          });
+          const data = await getMembresias();
+          setMembresias(data);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: response.msg,
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un problema al eliminar la membresía. Por favor, inténtelo de nuevo.",
+      });
+    }
   };
 
   return (
@@ -74,51 +211,78 @@ export function Membership() {
             <div className="card p-4 rounded">
               <div className="row g-3">
                 <div className="col-md-12">
-                  <label htmlFor="inputProductTitle" className="form-label">
+                  <label htmlFor="Name" className="form-label">
                     Nombre de membresía
                   </label>
                   <input
-                    type="email"
-                    className="form-control"
-                    id="inputProductTitle"
+                    type="text"
+                    className={`form-control ${errors.Name && "is-invalid"}`}
+                    id="Name"
                     placeholder="Ingrese el nombre de la membresía"
+                    value={newMembresia.Name}
+                    onChange={handleInputChange}
                   />
+                  {errors.Name && (
+                    <div className="invalid-feedback">{errors.Name}</div>
+                  )}
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="inputPrice" className="form-label">
+                  <label htmlFor="Price" className="form-label">
                     Precio
                   </label>
                   <input
-                    type="number"
-                    className="form-control"
-                    id="inputPrice"
+                    type="text"
+                    className={`form-control ${errors.Price && "is-invalid"}`}
+                    id="Price"
                     placeholder="00.00"
+                    value={newMembresia.Price}
+                    onChange={handleInputChange}
                   />
+                  {errors.Price && (
+                    <div className="invalid-feedback">{errors.Price}</div>
+                  )}
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="inputCompareatprice" className="form-label">
+                  <label htmlFor="Time" className="form-label">
                     Tiempo en meses
                   </label>
                   <input
-                    type="password"
-                    className="form-control"
-                    id="inputCompareatprice"
+                    type="text"
+                    className={`form-control ${errors.Time && "is-invalid"}`}
+                    id="Time"
                     placeholder="0"
+                    value={newMembresia.Time}
+                    onChange={handleInputChange}
                   />
+                  {errors.Time && (
+                    <div className="invalid-feedback">{errors.Time}</div>
+                  )}
                 </div>
                 <div className="col-12">
-                  <label htmlFor="inputProductType" className="form-label">
+                  <label htmlFor="Enabled" className="form-label">
                     Habilitado
                   </label>
-                  <select className="form-select" id="inputProductType">
-                    <option>Seleccionar estado</option>
-                    <option value={"true"}>Habilitar</option>
-                    <option value={"false"}>Desabilitar</option>
+                  <select
+                    className={`form-select ${errors.Enabled && "is-invalid"}`}
+                    name="Enabled"
+                    value={newMembresia.Enabled ? "true" : "false"}
+                    onChange={(e) => handleInputChange(e)}
+                    id="Enabled"
+                  >
+                    <option value="true">Habilitar</option>
+                    <option value="false">Deshabilitar</option>
                   </select>
+                  {errors.Enabled && (
+                    <div className="invalid-feedback">{errors.Enabled}</div>
+                  )}
                 </div>
                 <div className="col-12">
                   <div className="d-grid">
-                    <button type="button" className="btn btn-danger">
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={handleFormSubmit}
+                    >
                       Guardar Membresía
                     </button>
                   </div>
@@ -153,7 +317,7 @@ export function Membership() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredmembresias.map((membresia, index) => (
+                  {filteredMembresias.map((membresia, index) => (
                     <tr key={index}>
                       <td>{membresia.Name}</td>
                       <td>{membresia.Price}</td>
@@ -180,7 +344,7 @@ export function Membership() {
                         <button
                           className="btn btn-danger btn-sm"
                           onClick={() =>
-                            handleDeleteMembreship(membresia.IdMembreship || 0)
+                            handleDeleteMembership(membresia.IdMembership || 0)
                           }
                         >
                           <FaTrash />

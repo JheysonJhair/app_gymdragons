@@ -214,23 +214,7 @@ function AppLayout() {
                 <div className="menu-title">Membresía</div>
               </NavLink>
             </li>
-            {/* <li className="menu-label">Informes &amp; Gráficos</li>
-            <li>
-              <a href="widgets.html">
-                <div className="parent-icon">
-                  <i className="bx bx-bar-chart" />
-                </div>
-                <div className="menu-title">Reportes</div>
-              </a>
-            </li>
-            <li>
-              <a href="widgets.html">
-                <div className="parent-icon">
-                  <i className="bx bx-table" />
-                </div>
-                <div className="menu-title">Tablas</div>
-              </a>
-            </li> */}
+
             {user?.RoleId === 1 && (
               <>
                 <li className="menu-label">Configuración</li>
@@ -256,6 +240,23 @@ function AppLayout() {
                       </NavLink>
                     </li>
                   </ul>
+                </li>
+                <li className="menu-label">Informes &amp; Gráficos</li>
+                <li>
+                  <NavLink to="/area/reports/">
+                    <div className="parent-icon">
+                      <i className="bx bx-bar-chart" />
+                    </div>
+                    <div className="menu-title">Reportes</div>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/area/reports-table/">
+                    <div className="parent-icon">
+                      <i className="bx bx-table" />
+                    </div>
+                    <div className="menu-title">Tablas</div>
+                  </NavLink>
                 </li>
               </>
             )}

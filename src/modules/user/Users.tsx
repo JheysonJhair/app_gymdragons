@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { obtenerUsuarios } from "../../services/Usuario";
-import { User } from "../../types/User";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
+
+import { User } from "../../types/User";
+import { obtenerUsuarios } from "../../services/Usuario";
 
 export function Users() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
@@ -138,10 +139,14 @@ export function Users() {
                   <td>{usuario.Mail}</td>
                   <td>{usuario.BirthDate}</td>
                   <td>
-                  {usuario.Access ? (
-                      <span style={{ color: "green", fontWeight:"bold" }}>ACTIVO</span>
+                    {usuario.Access ? (
+                      <span style={{ color: "green", fontWeight: "bold" }}>
+                        ACTIVO
+                      </span>
                     ) : (
-                      <span style={{ color: "red" , fontWeight:"bold" }}>INACTIVO</span>
+                      <span style={{ color: "red", fontWeight: "bold" }}>
+                        INACTIVO
+                      </span>
                     )}
                   </td>
                   <td>

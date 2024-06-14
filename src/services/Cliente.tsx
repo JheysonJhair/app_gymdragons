@@ -1,18 +1,23 @@
 import { Client } from "../types/Client";
 
+const API_URL = "https://zonafitbk.ccontrolz.com/api/client/";
+
 interface ApiResponseAll {
   msg: string;
   success: boolean;
   data: Client[];
 }
+
 interface ApiResponse {
   msg: string;
   success: boolean;
   data: Client;
 }
+
+//---------------------------------------------------------------- GET CLIENTS
 export async function obtenerClientes(): Promise<Client[]> {
   try {
-    const response = await fetch("https://zonafitbk.ccontrolz.com/api/client");
+    const response = await fetch(API_URL);
     if (!response.ok) {
       throw new Error("Error al obtener los datos");
     }
@@ -27,9 +32,10 @@ export async function obtenerClientes(): Promise<Client[]> {
   }
 }
 
+//---------------------------------------------------------------- POST CLIENT
 export async function crearCliente(cliente: Partial<Client>): Promise<void> {
   try {
-    const response = await fetch("https://zonafitbk.ccontrolz.com/api/client", {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,9 +50,10 @@ export async function crearCliente(cliente: Partial<Client>): Promise<void> {
   }
 }
 
+//---------------------------------------------------------------- DELETE CLIENT
 export async function eliminarCliente(clienteId: number): Promise<void> {
   try {
-    const url = `https://zonafitbk.ccontrolz.com/api/client/${clienteId}`;
+    const url = `${API_URL}${clienteId}`;
     const response = await fetch(url, {
       method: "DELETE",
     });
@@ -58,11 +65,10 @@ export async function eliminarCliente(clienteId: number): Promise<void> {
   }
 }
 
-export async function obtenerClientePorDNI(
-  dni: string
-): Promise<Client | null> {
+//---------------------------------------------------------------- GET BY DNI CLIENT
+export async function obtenerClientePorDNI(dni: string): Promise<Client | null> {
   try {
-    const url = `https://zonafitbk.ccontrolz.com/api/client/dni/${dni}`;
+    const url = `${API_URL}dni/${dni}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Error al obtener los datos del cliente por DNI");
@@ -80,11 +86,10 @@ export async function obtenerClientePorDNI(
   }
 }
 
-export async function obtenerClientePorID(
-  clienteId: number
-): Promise<Client | null> {
+//---------------------------------------------------------------- GET BY ID CLIENT
+export async function obtenerClientePorID(clienteId: number): Promise<Client | null> {
   try {
-    const url = `https://zonafitbk.ccontrolz.com/api/client/${clienteId}`;
+    const url = `${API_URL}${clienteId}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Error al obtener los datos del cliente por ID");

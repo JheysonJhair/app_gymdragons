@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+
+import { Client } from "../../types/Client";
 import {
   obtenerClientePorID,
   obtenerClientePorDNI,
 } from "../../services/Cliente";
-import { Client } from "../../types/Client";
 
-export function Membresias() {
+export function MembershipPayment() {
   const [cliente, setCliente] = useState<Client | null>(null);
 
+  //---------------------------------------------------------------- GET BY DNI CLIENT
   const buscarClientePorDNI = async (dni: string) => {
     const clienteObtenido = await obtenerClientePorDNI(dni);
     setCliente(clienteObtenido !== null ? clienteObtenido : null);
   };
 
+  //---------------------------------------------------------------- GET BY ID CLIENT
   const buscarClientePorID = async (id: number) => {
     const clienteObtenido = await obtenerClientePorID(id);
     setCliente(clienteObtenido !== null ? clienteObtenido : null);

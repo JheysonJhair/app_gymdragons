@@ -123,7 +123,7 @@ export function NewClient() {
       case "BirthDate":
         return validateRequiredField(value) || "";
       default:
-        return validateRequiredField(value);
+        return validateRequiredField(value) || null;
     }
   };
 

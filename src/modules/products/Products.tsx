@@ -89,7 +89,7 @@ export function Products() {
                   <div className="col-lg-5 col-xl-2 text-lg-end mb-3 mb-lg-0">
                     <a
                       href="ecommerce-add-new-products.html"
-                      className="btn btn-primary d-block w-100"
+                      className="btn btn-danger d-block w-100"
                     >
                       <i className="bx bxs-plus-square me-2" />
                       Nuevo Producto

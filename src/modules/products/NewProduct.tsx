@@ -147,7 +147,7 @@ export function NewProduct() {
                       </div>
                       <div className="col-12">
                         <div className="d-grid">
-                          <button type="button" className="btn btn-primary">
+                          <button type="button" className="btn btn-danger">
                             Guardar Producto
                           </button>
                         </div>
