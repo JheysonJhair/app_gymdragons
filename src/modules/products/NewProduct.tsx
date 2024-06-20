@@ -1,18 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
+import { addProduct } from "../../services/Producto";
+
 export function NewProduct() {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
+  const [price, setPrice] = useState(0);
+  const [purchasePrice, setPurchasePrice] = useState(0);
+  const [type, setType] = useState(0);
+  const [errorMessages, setErrorMessages] = useState({
+    Name: "",
+    Description: "",
+    Image: "",
+    Price: "",
+    PurchasePrice: "",
+    Type: ""
+  });
+
+  const validateField = (name: string, value: string | number | undefined) => {
+    switch (name) {
+      case "Name":
+        return value ? null : "El nombre del producto es obligatorio.";
+      case "Description":
+        return value ? null : "La descripción del producto es obligatoria.";
+      case "Image":
+        return value ? null : "La imagen del producto es obligatoria.";
+      case "Price":
+        return value ? null : "El precio del producto es obligatorio.";
+      case "PurchasePrice":
+        return value ? null : "El precio de compra del producto es obligatorio.";
+      case "Type":
+        return value !== 0 ? null : "El tipo de producto es obligatorio.";
+      default:
+        return null;
+    }
+  };
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    const imagePreview = document.getElementById(
-      "image-preview"
-    ) as HTMLImageElement;
+    const imagePreview = document.getElementById("image-preview") as HTMLImageElement;
 
     if (file) {
       const reader = new FileReader();
 
       reader.onload = function (e) {
         if (typeof e.target?.result === "string") {
+          setImage(e.target.result); 
           imagePreview.src = e.target.result;
           imagePreview.style.display = "block";
         }
@@ -21,6 +56,53 @@ export function NewProduct() {
       reader.readAsDataURL(file);
     }
   };
+
+  const handleSubmit = async () => {
+    // Validación de todos los campos
+    const nameError = validateField("Name", name);
+    const descriptionError = validateField("Description", description);
+    const imageError = validateField("Image", image);
+    const priceError = validateField("Price", price);
+    const purchasePriceError = validateField("PurchasePrice", purchasePrice);
+    const typeError = validateField("Type", type);
+
+    if (
+      nameError ||
+      descriptionError ||
+      imageError ||
+      priceError ||
+      purchasePriceError ||
+      typeError
+    ) {
+      setErrorMessages({
+        Name: nameError || "",
+        Description: descriptionError || "",
+        Image: imageError || "",
+        Price: priceError || "",
+        PurchasePrice: purchasePriceError || "",
+        Type: typeError || ""
+      });
+      return;
+    }
+
+    const newProduct = {
+      Name: name,
+      Description: description,
+      Image: image,
+      Price: price,
+      PurchasePrice: purchasePrice,
+      Type: type,
+    };
+
+    try {
+      await addProduct(newProduct);
+      alert("Producto agregado con éxito!");
+    } catch (error) {
+      console.error("Failed to add product:", error);
+      alert("Error al agregar el producto.");
+    }
+  };
+
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -54,11 +136,24 @@ export function NewProduct() {
                         Nombre de producto
                       </label>
                       <input
-                        type="email"
-                        className="form-control"
+                        type="text"
+                        className={`form-control ${
+                          errorMessages.Name ? "is-invalid" : ""
+                        }`}
                         id="inputProductTitle"
                         placeholder="Ingrese el nombre de producto"
+                        value={name}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          setErrorMessages({ ...errorMessages, Name: "" });
+                        }}
+                        required
                       />
+                      {errorMessages.Name && (
+                        <div className="invalid-feedback">
+                          {errorMessages.Name}
+                        </div>
+                      )}
                     </div>
                     <div className="mb-3">
                       <label
@@ -68,14 +163,26 @@ export function NewProduct() {
                         Descripción
                       </label>
                       <textarea
-                        className="form-control"
+                        className={`form-control ${
+                          errorMessages.Description ? "is-invalid" : ""
+                        }`}
                         id="inputProductDescription"
                         rows={3}
                         placeholder="Ingrese alguna descripcion"
-                        defaultValue={""}
+                        value={description}
+                        onChange={(e) => {
+                          setDescription(e.target.value);
+                          setErrorMessages({ ...errorMessages, Description: "" });
+                        }}
+                        required
                       />
+                      {errorMessages.Description && (
+                        <div className="invalid-feedback">
+                          {errorMessages.Description}
+                        </div>
+                      )}
                     </div>
-
+  
                     <div className="mb-3">
                       <label htmlFor="image-uploadify" className="form-label">
                         Imagen del producto
@@ -84,17 +191,24 @@ export function NewProduct() {
                         <input
                           id="image-uploadify"
                           type="file"
-                          accept="image/*,"
-                          multiple
-                          className="form-control"
+                          accept="image/*"
+                          className={`form-control ${
+                            errorMessages.Image ? "is-invalid" : ""
+                          }`}
                           onChange={handleImageUpload}
+                          required
                         />
                         <span className="input-group-text">
                           <FontAwesomeIcon icon={faImage} />
                         </span>
                       </div>
+                      {errorMessages.Image && (
+                        <div className="invalid-feedback">
+                          {errorMessages.Image}
+                        </div>
+                      )}
                     </div>
-
+  
                     <img
                       id="image-preview"
                       className="img-fluid"
@@ -112,10 +226,23 @@ export function NewProduct() {
                         </label>
                         <input
                           type="number"
-                          className="form-control"
+                          className={`form-control ${
+                            errorMessages.Price ? "is-invalid" : ""
+                          }`}
                           id="inputPrice"
                           placeholder="00.00"
+                          value={price}
+                          onChange={(e) => {
+                            setPrice(parseFloat(e.target.value));
+                            setErrorMessages({ ...errorMessages, Price: "" });
+                          }}
+                          required
                         />
+                        {errorMessages.Price && (
+                          <div className="invalid-feedback">
+                            {errorMessages.Price}
+                          </div>
+                        )}
                       </div>
                       <div className="col-md-6">
                         <label
@@ -125,11 +252,27 @@ export function NewProduct() {
                           Precio de compra
                         </label>
                         <input
-                          type="password"
-                          className="form-control"
+                          type="number"
+                          className={`form-control ${
+                            errorMessages.PurchasePrice ? "is-invalid" : ""
+                          }`}
                           id="inputCompareatprice"
                           placeholder="00.00"
+                          value={purchasePrice}
+                          onChange={(e) => {
+                            setPurchasePrice(parseFloat(e.target.value));
+                            setErrorMessages({
+                              ...errorMessages,
+                              PurchasePrice: ""
+                            });
+                          }}
+                          required
                         />
+                        {errorMessages.PurchasePrice && (
+                          <div className="invalid-feedback">
+                            {errorMessages.PurchasePrice}
+                          </div>
+                        )}
                       </div>
                       <div className="col-12">
                         <label
@@ -138,16 +281,36 @@ export function NewProduct() {
                         >
                           Tipo de producto
                         </label>
-                        <select className="form-select" id="inputProductType">
-                          <option>Seleccionar tipo</option>
+                        <select
+                          className={`form-select ${
+                            errorMessages.Type ? "is-invalid" : ""
+                          }`}
+                          id="inputProductType"
+                          value={type}
+                          onChange={(e) => {
+                            setType(parseInt(e.target.value));
+                            setErrorMessages({ ...errorMessages, Type: "" });
+                          }}
+                          required
+                        >
+                          <option value={0}>Seleccionar tipo</option>
                           <option value={1}>Gaseosa</option>
                           <option value={2}>Energizante</option>
                           <option value={3}>Alcoholicas</option>
                         </select>
+                        {errorMessages.Type && (
+                          <div className="invalid-feedback">
+                            {errorMessages.Type}
+                          </div>
+                        )}
                       </div>
                       <div className="col-12">
                         <div className="d-grid">
-                          <button type="button" className="btn btn-danger">
+                          <button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={handleSubmit}
+                          >
                             Guardar Producto
                           </button>
                         </div>
@@ -162,4 +325,6 @@ export function NewProduct() {
       </div>
     </div>
   );
-}
+}  
+
+export default NewProduct;

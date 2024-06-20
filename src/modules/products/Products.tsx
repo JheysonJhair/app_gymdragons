@@ -1,76 +1,25 @@
-import { useState } from "react";
-
-const products = [
-  {
-    IdProduct: 1,
-    Name: "Energizante",
-    Price: 2.5,
-    Stock: 20,
-    ImgProduct:
-      "https://static.vecteezy.com/system/resources/previews/010/979/402/original/water-bottle-3d-illustration-png.png",
-  },
-  {
-    IdProduct: 2,
-    Name: "Café",
-    Price: 3.0,
-    Stock: 15,
-    ImgProduct:
-      "https://static.vecteezy.com/system/resources/previews/010/979/402/original/water-bottle-3d-illustration-png.png",
-  },
-  {
-    IdProduct: 3,
-    Name: "Galletas",
-    Price: 1.75,
-    Stock: 30,
-    ImgProduct:
-      "https://static.vecteezy.com/system/resources/previews/010/979/402/original/water-bottle-3d-illustration-png.png",
-  },
-  {
-    IdProduct: 4,
-    Name: "Agua",
-    Price: 1.0,
-    Stock: 50,
-    ImgProduct:
-      "https://static.vecteezy.com/system/resources/previews/010/979/402/original/water-bottle-3d-illustration-png.png",
-  },
-  {
-    IdProduct: 5,
-    Name: "Chocolate",
-    Price: 2.25,
-    Stock: 25,
-    ImgProduct:
-      "https://static.vecteezy.com/system/resources/previews/010/979/402/original/water-bottle-3d-illustration-png.png",
-  },
-  {
-    IdProduct: 6,
-    Name: "Galletas",
-    Price: 1.75,
-    Stock: 30,
-    ImgProduct:
-      "https://static.vecteezy.com/system/resources/previews/010/979/402/original/water-bottle-3d-illustration-png.png",
-  },
-  {
-    IdProduct: 7,
-    Name: "Agua",
-    Price: 1.0,
-    Stock: 50,
-    ImgProduct:
-      "https://static.vecteezy.com/system/resources/previews/010/979/402/original/water-bottle-3d-illustration-png.png",
-  },
-  {
-    IdProduct: 8,
-    Name: "Chocolate",
-    Price: 2.25,
-    Stock: 25,
-    ImgProduct:
-      "https://static.vecteezy.com/system/resources/previews/010/979/402/original/water-bottle-3d-illustration-png.png",
-  },
-];
+import { useState, useEffect } from "react";
+import { Product } from "../../types/Product";
+import { fetchProducts } from "../../services/Producto";
 
 export function Products() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearchChange = (event: any) => {
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const products = await fetchProducts();
+        setProducts(products);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
@@ -122,7 +71,7 @@ export function Products() {
             <div key={product.IdProduct} className="col">
               <div className="card">
                 <img
-                  src={product.ImgProduct}
+                  src={product.Image}
                   className="card-img-top"
                   alt={product.Name}
                 />

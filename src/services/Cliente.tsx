@@ -1,6 +1,6 @@
 import { Client } from "../types/Client";
 
-const API_URL = "https://zonafitbk.ccontrolz.com/api/client/";
+const API_URL = "https://zonafitbackend-production.up.railway.app/api/client/";
 
 interface ApiResponseAll {
   msg: string;

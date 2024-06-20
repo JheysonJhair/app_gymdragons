@@ -1,6 +1,6 @@
 import { Membership } from "../types/Membership";
 
-const API_URL = "https://zonafitbk.ccontrolz.com/api/";
+const API_URL = "https://zonafitbackend-production.up.railway.app/api/";
 
 //---------------------------------------------------------------- GET MEMBERSHIP
 export const getMembresias = async (): Promise<Membership[]> => {

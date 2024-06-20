@@ -8,7 +8,7 @@ interface ApiResponse {
 //---------------------------------------------------------------- GET USER
 export async function obtenerUsuarios(): Promise<User[]> {
   try {
-    const response = await fetch("https://zonafitbk.ccontrolz.com/api/user");
+    const response = await fetch("https://zonafitbackend-production.up.railway.app/api/user");
     if (!response.ok) {
       throw new Error("Error al obtener los datos");
     }
@@ -28,7 +28,7 @@ export async function crearUsuario(
   usuario: Partial<User>
 ): Promise<{ msg: string; success: boolean }> {
   try {
-    const response = await fetch("https://zonafitbk.ccontrolz.com/api/user", {
+    const response = await fetch("https://zonafitbackend-production.up.railway.app/api/user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export async function crearUsuario(
 //---------------------------------------------------------------- PUT USER
 export async function actualizarUsuario(usuario: Partial<User>): Promise<void> {
   try {
-    const url = `https://zonafitbk.ccontrolz.com/api/user/update`;
+    const url = `https://zonafitbackend-production.up.railway.app/api/user/update`;
     const response = await fetch(url, {
       method: "PUT",
       headers: {
@@ -70,7 +70,7 @@ export async function obtenerUsuarioPorId(
   usuarioId: number
 ): Promise<User | null> {
   try {
-    const url = `https://zonafitbk.ccontrolz.com/api/user/${usuarioId}`;
+    const url = `https://zonafitbackend-production.up.railway.app/api/user/${usuarioId}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Error al obtener el usuario");
@@ -88,7 +88,7 @@ export async function obtenerUsuarioPorId(
 //---------------------------------------------------------------- DELETE USER
 export async function eliminarUsuario(usuarioId: number): Promise<void> {
   try {
-    const url = `https://zonafitbk.ccontrolz.com/api/user/${usuarioId}`;
+    const url = `https://zonafitbackend-production.up.railway.app/api/user/${usuarioId}`;
     const response = await fetch(url, {
       method: "DELETE",
     });
