@@ -290,18 +290,6 @@ function AppLayout() {
                   </li>
 
                   <li className="nav-item dropdown dropdown-large">
-                    <h4
-                      style={{
-                        fontSize: "110%",
-                        fontWeight: "bold",
-                        marginTop: "5px",
-                      }}
-                    >
-                      {user?.RoleId === 1 ? "ADMINISTRADOR" : "VENDEDOR"}
-                    </h4>
-                  </li>
-
-                  <li className="nav-item dropdown dropdown-large">
                     <a
                       className="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative"
                       href="#"
@@ -431,7 +419,7 @@ function AppLayout() {
                   <div className="user-info">
                     <p className="user-name mb-0">{user?.FirstName}</p>
                     <p className="designattion mb-0">
-                      {user?.RoleId === 1 ? "Usuario supremo" : "Usuario"}
+                      {user?.RoleId === 1 ? "ADMINISTRADOR" : "USUARIO"}
                     </p>
                   </div>
                 </a>

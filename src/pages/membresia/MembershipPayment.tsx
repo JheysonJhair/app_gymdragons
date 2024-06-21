@@ -1,14 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-
 import { Client } from "../../types/Client";
-import {
-  obtenerClientePorID,
-  obtenerClientePorDNI,
-} from "../../services/Cliente";
+import { Membership } from "../../types/Membership";
+import { obtenerClientePorDNI } from "../../services/Cliente";
+import { getMembresias } from "../../services/Membresias";
+import { useAuth } from "../../hooks/AuthContext";
+import Swal from "sweetalert2";
+import { realizarPagoDeMembresia } from "../../services/MembershipPayment";
 
 export function MembershipPayment() {
+  const { user } = useAuth();
+
   const [cliente, setCliente] = useState<Client | null>(null);
+  const [subTotal, setSubTotal] = useState<number>(0);
+  const [descuento, setDescuento] = useState<number>(0);
+  const [precio, setPrecio] = useState<number>(0);
+  const [diasCongelados] = useState<number>(0);
+  const [aCuenta, setACuenta] = useState(0);
+  const [vuelto, setVuelto] = useState(0);
+  const [debe, setDebe] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [fechaInicio, setFechaInicio] = useState<string>("");
+  const [fechaFin, setFechaFin] = useState<string>("");
+  const [fechaPago, setFechaPago] = useState<string>("");
+  const [formaPago, setFormaPago] = useState("");
+  const [Observation, setObservation] = useState("");
+  const [selectedMembershipId, setSelectedMembershipId] = useState<
+    number | null
+  >(null);
+  const [membresias, setMembresias] = useState<Membership[]>([]);
+
+  //---------------------------------------------------------------- CALCULATE MONY
+  useEffect(() => {
+    const calculatedTotal = subTotal;
+    setTotal(calculatedTotal);
+
+    const calculatedDebe = calculatedTotal - aCuenta;
+    setDebe(calculatedDebe < 0 ? 0 : calculatedDebe);
+
+    const calculatedVuelto =
+      aCuenta > calculatedTotal ? aCuenta - calculatedTotal : 0;
+    setVuelto(calculatedVuelto);
+  }, [subTotal, descuento, aCuenta]);
+
+  //---------------------------------------------------------------- GET MEMBRESHIP
+  useEffect(() => {
+    const fetchMembresias = async () => {
+      const data = await getMembresias();
+      setMembresias(data);
+    };
+
+    fetchMembresias();
+  }, []);
 
   //---------------------------------------------------------------- GET BY DNI CLIENT
   const buscarClientePorDNI = async (dni: string) => {
@@ -17,10 +60,70 @@ export function MembershipPayment() {
   };
 
   //---------------------------------------------------------------- GET BY ID CLIENT
-  const buscarClientePorID = async (id: number) => {
-    const clienteObtenido = await obtenerClientePorID(id);
-    setCliente(clienteObtenido !== null ? clienteObtenido : null);
+  const handlePayment = async () => {
+    if (!cliente?.FirstName || !cliente?.LastName) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos vacios!",
+        text: "Complete los campos del cliente.",
+      });
+      return;
+    }
+
+    if (!fechaFin || !fechaInicio || !selectedMembershipId) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos vacios!",
+        text: "Complete el formulario de membresía.",
+      });
+      return;
+    }
+
+    if (!aCuenta || !fechaPago || !formaPago) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos vacios!",
+        text: "Complete el formulario de pago.",
+      });
+      return;
+    }
+
+    try {
+      const data = {
+        idClient: cliente?.IdClient || 0,
+        idMembership: selectedMembershipId || 0,
+        IdUser: user?.IdUser || 0,
+        StartDate: fechaInicio,
+        EndDate: fechaFin,
+        Total: total,
+        Discount: descuento,
+        PriceDiscount: subTotal,
+        QuantityDays: 0,
+        DatePayment: fechaPago,
+        Due: debe,
+        PrePaid: total,
+        PaymentType: formaPago,
+        PaymentReceipt: "Rec-0000012",
+        Observation: Observation,
+      };
+
+      const response = await realizarPagoDeMembresia(data);
+
+      console.log("Respuesta del servidor:", response);
+      Swal.fire({
+        icon: "success",
+        title: "Pago realizado correctamente",
+        text: "El pago se ha registrado exitosamente.",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error al realizar el pago",
+        text: "Hubo un problema al intentar realizar el pago.",
+      });
+    }
   };
+
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -33,9 +136,6 @@ export function MembershipPayment() {
                   <a href="#">
                     <i className="bx bx-home-alt" />
                   </a>
-                </li>
-                <li className="breadcrumb-item active" aria-current="page">
-                  Nueva membresia
                 </li>
               </ol>
             </nav>
@@ -56,7 +156,7 @@ export function MembershipPayment() {
               </div>
               <div className="card-body">
                 <div className="row mb-3">
-                  <div className="col-sm-6">
+                  <div className="col-sm-8">
                     <NavLink
                       to="/area/new-client/"
                       className="btn btn-danger btn-block"
@@ -64,7 +164,7 @@ export function MembershipPayment() {
                       <i className="bx bx-user-plus"></i> Nuevo cliente
                     </NavLink>
                   </div>
-                  <div className="col-sm-6">
+                  <div className="col-sm-4">
                     <div className="input-group">
                       <input
                         type="text"
@@ -72,14 +172,7 @@ export function MembershipPayment() {
                         placeholder="DNI"
                         onChange={(e) => buscarClientePorDNI(e.target.value)}
                       />
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Código"
-                        onChange={(e) =>
-                          buscarClientePorID(parseInt(e.target.value))
-                        }
-                      />
+
                       <button
                         className="btn btn-outline-secondary"
                         type="button"
@@ -298,11 +391,6 @@ export function MembershipPayment() {
                       <i className="bx bx-purchase-tag"></i> Nueva membresía
                     </NavLink>
                   </div>
-                  <div className="col">
-                    <button className="btn btn-danger btn-block">
-                      <i className="bx bx-transfer-alt"></i> Nuevo traspaso
-                    </button>
-                  </div>
                 </div>
                 <div className="row mb-4">
                   <div className="row">
@@ -316,6 +404,7 @@ export function MembershipPayment() {
                           type="date"
                           className="form-control"
                           placeholder="Fecha de Inicio"
+                          onChange={(e) => setFechaInicio(e.target.value)}
                         />
                       </div>
                     </div>
@@ -329,6 +418,7 @@ export function MembershipPayment() {
                           type="date"
                           className="form-control"
                           placeholder="Fecha de Fin"
+                          onChange={(e) => setFechaFin(e.target.value)}
                         />
                       </div>
                     </div>
@@ -343,20 +433,45 @@ export function MembershipPayment() {
                       <span className="input-group-text">
                         <i className="bx bx-package"></i>
                       </span>
-                      <select className="form-select" id="input53">
-                        <option>Seleccionar paquete aquí</option>
-                        <option value={1}>
-                          PLAN UNIVERSITARIO <span>PRECIO: 180.00</span>
-                        </option>
-                        <option value={2}>
-                          PUBLICO EN GENERAL PRECIO: 220.00
-                        </option>
-                        <option value={3}>
-                          INTERDIARIO O MEDIO MES PRECIO: 45.00
-                        </option>
-                        <option value={3}>
-                          PUBLICO EN GENERAL PRECIO: 90.00
-                        </option>
+                      <select
+                        className="form-select"
+                        id="input53"
+                        onChange={(e) => {
+                          const selectedMembresia = membresias.find(
+                            (m) => m.IdMembership === parseInt(e.target.value)
+                          );
+                          if (selectedMembresia) {
+                            const precio = Number(selectedMembresia.Price);
+                            const descuento = precio * 0.1;
+                            const subTotal = precio - descuento;
+                            setSubTotal(subTotal);
+                            setDescuento(descuento);
+                            setPrecio(precio);
+
+                            if (selectedMembresia.IdMembership !== undefined) {
+                              setSelectedMembershipId(
+                                selectedMembresia.IdMembership
+                              );
+                            } else {
+                              setSelectedMembershipId(null);
+                            }
+                          } else {
+                            setSubTotal(0);
+                            setDescuento(0);
+                            setPrecio(0);
+                            setSelectedMembershipId(null);
+                          }
+                        }}
+                      >
+                        <option value="">Seleccionar paquete aquí</option>
+                        {membresias.map((membresia) => (
+                          <option
+                            key={membresia.IdMembership}
+                            value={membresia.IdMembership}
+                          >
+                            {membresia.Name} PRECIO: {membresia.Price}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -375,13 +490,16 @@ export function MembershipPayment() {
                         className="form-control"
                         id="input50"
                         placeholder="0.00"
+                        value={subTotal.toFixed(2)}
+                        readOnly
+                        disabled
                       />
                     </div>
                   </div>
                 </div>
                 <div className="row mb-3">
                   <label htmlFor="input50" className="col-sm-5 col-form-label">
-                    Descuento
+                    Descuento (10%)
                   </label>
                   <div className="col-sm-7">
                     <div className="input-group">
@@ -393,6 +511,9 @@ export function MembershipPayment() {
                         className="form-control"
                         id="input50"
                         placeholder="0.00"
+                        value={descuento.toFixed(2)}
+                        readOnly
+                        disabled
                       />
                     </div>
                   </div>
@@ -411,24 +532,9 @@ export function MembershipPayment() {
                         className="form-control"
                         id="input50"
                         placeholder="0.00"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="row mb-3">
-                  <label htmlFor="input50" className="col-sm-6 col-form-label">
-                    Numero de sesiones
-                  </label>
-                  <div className="col-sm-6">
-                    <div className="input-group">
-                      <span className="input-group-text">
-                        <i className="bx bx-calendar" />
-                      </span>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="input50"
-                        placeholder="#00"
+                        value={precio.toFixed(2)}
+                        readOnly
+                        disabled
                       />
                     </div>
                   </div>
@@ -446,6 +552,7 @@ export function MembershipPayment() {
                         type="text"
                         className="form-control"
                         id="input50"
+                        value={diasCongelados}
                         placeholder="#00"
                       />
                     </div>
@@ -465,6 +572,7 @@ export function MembershipPayment() {
                         className="form-control"
                         id="input50"
                         placeholder="#00"
+                        disabled
                       />
                     </div>
                   </div>
@@ -496,6 +604,7 @@ export function MembershipPayment() {
                       type="date"
                       className="form-control"
                       placeholder="Fecha de Inicio"
+                      onChange={(e) => setFechaPago(e.target.value)}
                     />
                   </div>
                 </div>
@@ -513,6 +622,8 @@ export function MembershipPayment() {
                         className="form-control"
                         id="input50"
                         placeholder="0.00"
+                        value={aCuenta}
+                        onChange={(e) => setACuenta(Number(e.target.value))}
                       />
                     </div>
                   </div>
@@ -531,6 +642,8 @@ export function MembershipPayment() {
                         className="form-control"
                         id="input50"
                         placeholder="0.00"
+                        value={vuelto.toFixed(2)}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -549,6 +662,8 @@ export function MembershipPayment() {
                         className="form-control"
                         id="input50"
                         placeholder="0.00"
+                        value={debe.toFixed(2)}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -567,6 +682,8 @@ export function MembershipPayment() {
                         className="form-control"
                         id="input50"
                         placeholder="0.00"
+                        value={total.toFixed(2)}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -589,45 +706,40 @@ export function MembershipPayment() {
                       <span className="input-group-text">
                         <i className="bx bx-package"></i>
                       </span>
-                      <select className="form-select" id="input53">
-                        <option>Seleccionar forma de pago</option>
-                        <option value={1}>paquete1</option>
-                        <option value={2}>paquete 2</option>
-                        <option value={3}>paquite 3</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div className="row mb-3">
-                  <label htmlFor="input53" className="col-sm-4 col-form-label">
-                    Comprobante de pago
-                  </label>
-                  <div className="col-sm-8">
-                    <div className="input-group">
-                      <span className="input-group-text">
-                        <i className="bx bx-package"></i>
-                      </span>
-                      <select className="form-select" id="input53">
-                        <option>Seleccionar comprobante</option>
-                        <option value={1}>paquete1</option>
-                        <option value={2}>paquete 2</option>
-                        <option value={3}>paquite 3</option>
+                      <select
+                        className="form-select"
+                        id="input53"
+                        onChange={(e) => setFormaPago(e.target.value)}
+                        value={formaPago}
+                      >
+                        <option value={undefined}>
+                          Seleccionar forma de pago
+                        </option>
+                        <option value={"Tarjeta de crédito"}>
+                          Tarjeta de crédito
+                        </option>
+                        <option value={"Yape"}>Yape</option>
+                        <option value={"Efectivo"}>Efectivo</option>
                       </select>
                     </div>
                   </div>
                 </div>
                 <div className="input-group">
-                  <span className="input-group-text">Observaciones</span>
+                  <span className="input-group-text">Observaciones*</span>
                   <textarea
                     className="form-control"
                     aria-label="With textarea"
                     defaultValue={""}
+                    onChange={(e) => setObservation(e.target.value)}
                   />
                 </div>
                 <div className="row mt-4">
                   <div className="col">{/* Contenido */}</div>
                   <div className="col-auto ml-auto">
-                    <button className="btn btn-danger btn-block">
+                    <button
+                      className="btn btn-danger btn-block"
+                      onClick={handlePayment}
+                    >
                       <i className="bx bx-dollar"></i> Realizar pago
                     </button>
                   </div>

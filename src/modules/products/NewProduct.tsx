@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
 import { addProduct } from "../../services/Producto";
+import Swal from "sweetalert2";
 
 export function NewProduct() {
   const [name, setName] = useState("");
@@ -16,10 +17,10 @@ export function NewProduct() {
     Image: "",
     Price: "",
     PurchasePrice: "",
-    Type: ""
+    Type: "",
   });
 
-  const validateField = (name: string, value: string | number | undefined) => {
+  const validateField = (name: any, value: any) => {
     switch (name) {
       case "Name":
         return value ? null : "El nombre del producto es obligatorio.";
@@ -30,7 +31,9 @@ export function NewProduct() {
       case "Price":
         return value ? null : "El precio del producto es obligatorio.";
       case "PurchasePrice":
-        return value ? null : "El precio de compra del producto es obligatorio.";
+        return value
+          ? null
+          : "El precio de compra del producto es obligatorio.";
       case "Type":
         return value !== 0 ? null : "El tipo de producto es obligatorio.";
       default:
@@ -38,16 +41,16 @@ export function NewProduct() {
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (event: any) => {
     const file = event.target.files?.[0];
-    const imagePreview = document.getElementById("image-preview") as HTMLImageElement;
+    const imagePreview = document.getElementById("image-preview");
 
-    if (file) {
+    if (file && imagePreview instanceof HTMLImageElement) {
       const reader = new FileReader();
 
       reader.onload = function (e) {
         if (typeof e.target?.result === "string") {
-          setImage(e.target.result); 
+          setImage(e.target.result);
           imagePreview.src = e.target.result;
           imagePreview.style.display = "block";
         }
@@ -58,7 +61,6 @@ export function NewProduct() {
   };
 
   const handleSubmit = async () => {
-    // Validación de todos los campos
     const nameError = validateField("Name", name);
     const descriptionError = validateField("Description", description);
     const imageError = validateField("Image", image);
@@ -80,7 +82,7 @@ export function NewProduct() {
         Image: imageError || "",
         Price: priceError || "",
         PurchasePrice: purchasePriceError || "",
-        Type: typeError || ""
+        Type: typeError || "",
       });
       return;
     }
@@ -88,21 +90,29 @@ export function NewProduct() {
     const newProduct = {
       Name: name,
       Description: description,
-      Image: image,
+      Image: "https://w7.pngwing.com/pngs/93/563/png-transparent-world-of-coca-cola-fizzy-drinks-diet-coke-pepsi-coca-cola-cola-cola-wars-beverage-can.png",
       Price: price,
       PurchasePrice: purchasePrice,
       Type: type,
     };
 
     try {
-      await addProduct(newProduct);
-      alert("Producto agregado con éxito!");
+      const response =await addProduct(newProduct);
+      console.log(response.msg);
+      Swal.fire({ 
+        icon: "success",
+        title: "Producto agregado con éxito!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (error) {
-      console.error("Failed to add product:", error);
-      alert("Error al agregar el producto.");
+      Swal.fire({
+        icon: "error",
+        title: "Error al agregar el producto",
+        text: "Ocurrió un error al intentar agregar el producto.",
+      });
     }
   };
-
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -172,7 +182,10 @@ export function NewProduct() {
                         value={description}
                         onChange={(e) => {
                           setDescription(e.target.value);
-                          setErrorMessages({ ...errorMessages, Description: "" });
+                          setErrorMessages({
+                            ...errorMessages,
+                            Description: "",
+                          });
                         }}
                         required
                       />
@@ -182,7 +195,7 @@ export function NewProduct() {
                         </div>
                       )}
                     </div>
-  
+
                     <div className="mb-3">
                       <label htmlFor="image-uploadify" className="form-label">
                         Imagen del producto
@@ -208,7 +221,7 @@ export function NewProduct() {
                         </div>
                       )}
                     </div>
-  
+
                     <img
                       id="image-preview"
                       className="img-fluid"
@@ -263,7 +276,7 @@ export function NewProduct() {
                             setPurchasePrice(parseFloat(e.target.value));
                             setErrorMessages({
                               ...errorMessages,
-                              PurchasePrice: ""
+                              PurchasePrice: "",
                             });
                           }}
                           required
@@ -325,6 +338,6 @@ export function NewProduct() {
       </div>
     </div>
   );
-}  
+}
 
 export default NewProduct;
