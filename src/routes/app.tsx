@@ -15,6 +15,7 @@ import { Assists } from "../modules/Assists/Assists";
 import { Memberships } from "../modules/membership/Membership";
 import { Reports } from "../modules/reports/Reports";
 import { ReportsTable } from "../modules/reports/ReportsTable";
+import { ClientMembership } from "../modules/clientes/ClienteMembership";
 
 const appRouter = [
   {
@@ -43,7 +44,7 @@ const appRouter = [
         element: <NewProduct />,
       },
       {
-        path: "/area/detail-product/",
+        path: "/area/detail-product/:productId",
         element: <DetailProduct />,
       },
       {
@@ -53,6 +54,10 @@ const appRouter = [
       {
         path: "/area/new-client/",
         element: <NewClient />,
+      },
+      {
+        path: "/area/client-membership/",
+        element: <ClientMembership />,
       },
       {
         path: "/area/mark-assistance/",

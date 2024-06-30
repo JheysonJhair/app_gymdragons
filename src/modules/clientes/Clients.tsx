@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 import { Client } from "../../types/Client";
 import { obtenerClientes } from "../../services/Cliente";
@@ -10,6 +12,8 @@ export function Clients() {
   const [currentPage, setCurrentPage] = useState(1);
   const [clientesPerPage] = useState(9);
   const [searchTerm, setSearchTerm] = useState("");
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   const indexOfLastCliente = currentPage * clientesPerPage;
   const indexOfFirstCliente = indexOfLastCliente - clientesPerPage;
@@ -75,6 +79,26 @@ export function Clients() {
     } catch (error) {
       console.error("Error al eliminar el cliente:", error);
       Swal.fire("Error", "Hubo un error al eliminar el cliente", "error");
+    }
+  };
+
+  //---------------------------------------------------------------- EDIT CLIENT
+  const handleEditClient = (client: Client) => {
+    setSelectedClient(client);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedClient(null);
+  };
+
+  const saveChanges = async () => {
+    try {
+      Swal.fire("¡Actualizado!", "El cliente ha sido actualizado.", "success");
+    } catch (error) {
+      console.error("Error al actualizar el cliente:", error);
+      Swal.fire("Error", "Hubo un error al actualizar el cliente", "error");
     }
   };
 
@@ -144,6 +168,7 @@ export function Clients() {
                       className="btn btn-primary btn-sm"
                       style={{ marginRight: "6px" }}
                       title="Editar"
+                      onClick={() => handleEditClient(cliente)}
                     >
                       <FaEdit />
                     </button>
@@ -169,6 +194,186 @@ export function Clients() {
           ))}
         </ul>
       </div>
+
+      {/* Modal para editar cliente */}
+      <Modal show={modalIsOpen} onHide={closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Editar Cliente</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedClient && (
+            <form>
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label htmlFor="firstName" className="form-label">
+                      Nombre(s)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="firstName"
+                      value={selectedClient.FirstName}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          FirstName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="document" className="form-label">
+                      DNI
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="document"
+                      value={selectedClient.Document}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          Document: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="mail" className="form-label">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      id="mail"
+                      value={selectedClient.Mail}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          Mail: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="whatsapp" className="form-label">
+                      Whatsapp
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="whatsapp"
+                      value={selectedClient.Whatsapp}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          Whatsapp: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="address" className="form-label">
+                      Dirección
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="address"
+                      value={selectedClient.Address}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          Address: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label htmlFor="lastName" className="form-label">
+                      Apellido(s)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="lastName"
+                      value={selectedClient.LastName}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          LastName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="phoneNumber" className="form-label">
+                      Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="phoneNumber"
+                      value={selectedClient.PhoneNumber}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          PhoneNumber: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="maritalStatus" className="form-label">
+                      Estado Civil
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="maritalStatus"
+                      value={selectedClient.MaritalStatus}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          MaritalStatus: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="gender" className="form-label">
+                      Género
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="gender"
+                      value={selectedClient.Gender}
+                      onChange={(e) =>
+                        setSelectedClient({
+                          ...selectedClient,
+                          Gender: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeModal}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={saveChanges}>
+            Guardar cambios
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

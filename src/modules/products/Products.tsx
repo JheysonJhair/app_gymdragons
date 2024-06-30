@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Product } from "../../types/Product";
 import { fetchProducts } from "../../services/Producto";
+import { NavLink } from "react-router-dom";
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -36,13 +37,12 @@ export function Products() {
               <div className="card-body">
                 <div className="row align-items-center">
                   <div className="col-lg-5 col-xl-2 text-lg-end mb-3 mb-lg-0">
-                    <a
-                      href="ecommerce-add-new-products.html"
+                    <NavLink
+                      to="/area/new-product/"
                       className="btn btn-danger d-block w-100"
                     >
-                      <i className="bx bxs-plus-square me-2" />
-                      Nuevo Producto
-                    </a>
+                      <i className="bx bxs-plus-square me-2" /> Nuevo Producto
+                    </NavLink>
                   </div>
                   <div className="col-lg-7 col-xl-10 text-lg-start">
                     <div className="input-group">
@@ -70,11 +70,13 @@ export function Products() {
           {filteredProducts.map((product) => (
             <div key={product.IdProduct} className="col">
               <div className="card">
-                <img
-                  src={product.Image}
-                  className="card-img-top"
-                  alt={product.Name}
-                />
+                <NavLink to={`/area/detail-product/${product.IdProduct}`}>
+                  <img
+                    src={product.Image}
+                    className="card-img-top"
+                    alt={product.Name}
+                  />
+                </NavLink>
                 <div className="card-body">
                   <h6 className="card-title cursor-pointer">{product.Name}</h6>
                   <div className="clearfix">

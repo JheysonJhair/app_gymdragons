@@ -96,12 +96,6 @@ function AppLayout() {
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/area/detail-product/">
-                    <i className="bx bx-radio-circle" />
-                    Detalle de producto
-                  </NavLink>
-                </li>
-                <li>
                   <NavLink to="/area/new-product/">
                     <i className="bx bx-radio-circle" />
                     Nuevo producto
@@ -128,6 +122,12 @@ function AppLayout() {
                   <NavLink to="/area/new-client/">
                     <i className="bx bx-radio-circle" />
                     Nuevo cliente
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/area/client-membership/">
+                    <i className="bx bx-radio-circle" />
+                    Plan de membresía
                   </NavLink>
                 </li>
               </ul>

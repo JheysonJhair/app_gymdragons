@@ -1,15 +1,22 @@
 import { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 import { User } from "../../types/User";
 import { obtenerUsuarios } from "../../services/Usuario";
+
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export function Users() {
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [UsuariosPerPage] = useState(9);
   const [searchTerm, setSearchTerm] = useState("");
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
   const indexOfLastUsuario = currentPage * UsuariosPerPage;
   const indexOfFirstUsuario = indexOfLastUsuario - UsuariosPerPage;
   const currentUsuarios = usuarios.slice(
@@ -25,17 +32,37 @@ export function Users() {
     )
   );
 
-  //---------------------------------------------------------------- GET USERS
   useEffect(() => {
     const fetchData = async () => {
-      const data = await obtenerUsuarios();
-      setUsuarios(data);
+      try {
+        const data = await obtenerUsuarios();
+        setUsuarios(data);
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
     };
 
     fetchData();
   }, []);
 
-  //---------------------------------------------------------------- DELETE USER
+  const handleEditUser = (usuario: User) => {
+    setSelectedUser(usuario);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedUser(null);
+  };
+
+  const saveChanges = () => {
+    // Aquí deberías implementar la lógica para guardar los cambios del usuario
+    // Puedes hacer una solicitud HTTP para actualizar el usuario en el servidor
+    // Y luego actualizar el estado de usuarios y cerrar el modal
+    setModalIsOpen(false);
+    setSelectedUser(null);
+  };
+
   const handleDeleteUser = async (id: number) => {
     try {
       const confirmacion = await Swal.fire({
@@ -119,7 +146,6 @@ export function Users() {
                 <th>Nombres y apellidos</th>
                 <th>Dni</th>
                 <th>Teléfono</th>
-                <th>Email</th>
                 <th>Fecha de nacimiento</th>
                 <th>ACESO</th>
                 <th>ROL</th>
@@ -136,7 +162,6 @@ export function Users() {
                   </td>
                   <td>{usuario.Dni}</td>
                   <td>{usuario.PhoneNumber}</td>
-                  <td>{usuario.Mail}</td>
                   <td>{usuario.BirthDate}</td>
                   <td>
                     {usuario.Access ? (
@@ -161,6 +186,7 @@ export function Users() {
                       className="btn btn-primary btn-sm"
                       style={{ marginRight: "6px" }}
                       title="Editar"
+                      onClick={() => handleEditUser(usuario)}
                     >
                       <FaEdit />
                     </button>
@@ -186,6 +212,73 @@ export function Users() {
           ))}
         </ul>
       </div>
+
+      {/* Modal para editar usuario */}
+      <Modal show={modalIsOpen} onHide={closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Editar Usuario</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <form>
+              <div className="mb-3">
+                <label htmlFor="username" className="form-label">
+                  Nombre de Usuario
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="username"
+                  value={selectedUser.UserName}
+                  readOnly
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="firstName" className="form-label">
+                  Nombre(s)
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="firstName"
+                  value={selectedUser.FirstName}
+                  onChange={(e) =>
+                    setSelectedUser({
+                      ...selectedUser,
+                      FirstName: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="lastName" className="form-label">
+                  Apellido(s)
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="lastName"
+                  value={selectedUser.LastName}
+                  onChange={(e) =>
+                    setSelectedUser({
+                      ...selectedUser,
+                      LastName: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeModal}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={saveChanges}>
+            Guardar cambios
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

@@ -3,6 +3,9 @@ export interface Product {
   Name: string;
   Price: number;
   Stock: number;
+  Description?: string;
+  Type?: number;
+  PurchasePrice?: number;
   Image: string;
 }
 export type newProduct = {
