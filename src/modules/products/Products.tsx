@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import { Product } from "../../types/Product";
 import { fetchProducts } from "../../services/Producto";
 import { NavLink } from "react-router-dom";
+import CartIcon from "./components/CartIcon";
+import './Products.css'; // Importa el archivo CSS
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [cart, setCart] = useState<Product[]>([]);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -24,12 +27,19 @@ export function Products() {
     setSearchTerm(event.target.value);
   };
 
+  const handleAddToCart = (product: Product) => {
+    setCart([...cart, product]);
+  };
+
   const filteredProducts = products.filter((product) =>
     product.Name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="page-wrapper">
+      <div className="cart-icon-container">
+        <CartIcon cartItems={cart} />
+      </div>
       <div className="page-content">
         <div className="row">
           <div className="col-12">
@@ -85,6 +95,12 @@ export function Products() {
                     </p>
                     <p className="mb-0 float-end fw-bold">${product.Price}</p>
                   </div>
+                  <button
+                    className="btn btn-outline-primary mt-2"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    <i className="bx bxs-cart-add" /> Agregar al carrito
+                  </button>
                 </div>
               </div>
             </div>

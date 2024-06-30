@@ -10,6 +10,7 @@ export function NewProduct() {
   const [image, setImage] = useState("");
   const [price, setPrice] = useState(0);
   const [purchasePrice, setPurchasePrice] = useState(0);
+  const [stock, setStock] = useState(0);
   const [type, setType] = useState(0);
   const [errorMessages, setErrorMessages] = useState({
     Name: "",
@@ -17,6 +18,7 @@ export function NewProduct() {
     Image: "",
     Price: "",
     PurchasePrice: "",
+    Stock: "",
     Type: "",
   });
 
@@ -31,9 +33,9 @@ export function NewProduct() {
       case "Price":
         return value ? null : "El precio del producto es obligatorio.";
       case "PurchasePrice":
-        return value
-          ? null
-          : "El precio de compra del producto es obligatorio.";
+        return value ? null : "El precio de compra del producto es obligatorio.";
+      case "Stock":
+        return value ? null : "El stock del producto es obligatorio.";
       case "Type":
         return value !== 0 ? null : "El tipo de producto es obligatorio.";
       default:
@@ -66,6 +68,7 @@ export function NewProduct() {
     const imageError = validateField("Image", image);
     const priceError = validateField("Price", price);
     const purchasePriceError = validateField("PurchasePrice", purchasePrice);
+    const stockError = validateField("Stock", stock);
     const typeError = validateField("Type", type);
 
     if (
@@ -74,6 +77,7 @@ export function NewProduct() {
       imageError ||
       priceError ||
       purchasePriceError ||
+      stockError ||
       typeError
     ) {
       setErrorMessages({
@@ -82,6 +86,7 @@ export function NewProduct() {
         Image: imageError || "",
         Price: priceError || "",
         PurchasePrice: purchasePriceError || "",
+        Stock: stockError || "",
         Type: typeError || "",
       });
       return;
@@ -93,13 +98,14 @@ export function NewProduct() {
       Image: "https://w7.pngwing.com/pngs/93/563/png-transparent-world-of-coca-cola-fizzy-drinks-diet-coke-pepsi-coca-cola-cola-cola-wars-beverage-can.png",
       Price: price,
       PurchasePrice: purchasePrice,
+      Stock: stock,
       Type: type,
     };
 
     try {
-      const response =await addProduct(newProduct);
+      const response = await addProduct(newProduct);
       console.log(response.msg);
-      Swal.fire({ 
+      Swal.fire({
         icon: "success",
         title: "Producto agregado con éxito!",
         showConfirmButton: false,
@@ -113,6 +119,7 @@ export function NewProduct() {
       });
     }
   };
+
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -195,7 +202,7 @@ export function NewProduct() {
                         </div>
                       )}
                     </div>
-
+  
                     <div className="mb-3">
                       <label htmlFor="image-uploadify" className="form-label">
                         Imagen del producto
@@ -221,77 +228,103 @@ export function NewProduct() {
                         </div>
                       )}
                     </div>
-
+  
                     <img
                       id="image-preview"
                       className="img-fluid"
                       alt="Preview"
                       style={{ display: "none", maxWidth: "52%" }}
                     />
+  
+
+  
                   </div>
                 </div>
                 <div className="col-lg-6">
                   <div className="border border-3 p-4 rounded">
                     <div className="row g-3">
-                      <div className="col-md-6">
-                        <label htmlFor="inputPrice" className="form-label">
-                          Precio
-                        </label>
-                        <input
-                          type="number"
-                          className={`form-control ${
-                            errorMessages.Price ? "is-invalid" : ""
-                          }`}
-                          id="inputPrice"
-                          placeholder="00.00"
-                          value={price}
-                          onChange={(e) => {
-                            setPrice(parseFloat(e.target.value));
-                            setErrorMessages({ ...errorMessages, Price: "" });
-                          }}
-                          required
-                        />
-                        {errorMessages.Price && (
-                          <div className="invalid-feedback">
-                            {errorMessages.Price}
-                          </div>
-                        )}
-                      </div>
-                      <div className="col-md-6">
-                        <label
-                          htmlFor="inputCompareatprice"
-                          className="form-label"
-                        >
-                          Precio de compra
-                        </label>
-                        <input
-                          type="number"
-                          className={`form-control ${
-                            errorMessages.PurchasePrice ? "is-invalid" : ""
-                          }`}
-                          id="inputCompareatprice"
-                          placeholder="00.00"
-                          value={purchasePrice}
-                          onChange={(e) => {
-                            setPurchasePrice(parseFloat(e.target.value));
-                            setErrorMessages({
-                              ...errorMessages,
-                              PurchasePrice: "",
-                            });
-                          }}
-                          required
-                        />
-                        {errorMessages.PurchasePrice && (
-                          <div className="invalid-feedback">
-                            {errorMessages.PurchasePrice}
-                          </div>
-                        )}
-                      </div>
+                    <div className="mb-3">
+                      <label htmlFor="inputPrice" className="form-label">
+                        Precio
+                      </label>
+                      <input
+                        type="number"
+                        className={`form-control ${
+                          errorMessages.Price ? "is-invalid" : ""
+                        }`}
+                        id="inputPrice"
+                        placeholder="00.00"
+                        value={price}
+                        onChange={(e) => {
+                          setPrice(parseFloat(e.target.value));
+                          setErrorMessages({ ...errorMessages, Price: "" });
+                        }}
+                        required
+                      />
+                      {errorMessages.Price && (
+                        <div className="invalid-feedback">
+                          {errorMessages.Price}
+                        </div>
+                      )}
+                    </div>
+  
+                    <div className="mb-3">
+                      <label
+                        htmlFor="inputCompareatprice"
+                        className="form-label"
+                      >
+                        Precio de compra
+                      </label>
+                      <input
+                        type="number"
+                        className={`form-control ${
+                          errorMessages.PurchasePrice ? "is-invalid" : ""
+                        }`}
+                        id="inputCompareatprice"
+                        placeholder="00.00"
+                        value={purchasePrice}
+                        onChange={(e) => {
+                          setPurchasePrice(parseFloat(e.target.value));
+                          setErrorMessages({
+                            ...errorMessages,
+                            PurchasePrice: "",
+                          });
+                        }}
+                        required
+                      />
+                      {errorMessages.PurchasePrice && (
+                        <div className="invalid-feedback">
+                          {errorMessages.PurchasePrice}
+                        </div>
+                      )}
+                    </div>
+  
+                    <div className="mb-3">
+                      <label htmlFor="inputStock" className="form-label">
+                        Stock
+                      </label>
+                      <input
+                        type="number"
+                        className={`form-control ${
+                          errorMessages.Stock ? "is-invalid" : ""
+                        }`}
+                        id="inputStock"
+                        placeholder="Cantidad en stock"
+                        value={stock}
+                        onChange={(e) => {
+                          setStock(parseInt(e.target.value));
+                          setErrorMessages({ ...errorMessages, Stock: "" });
+                        }}
+                        required
+                      />
+                      {errorMessages.Stock && (
+                        <div className="invalid-feedback">
+                          {errorMessages.Stock}
+                        </div>
+                      )}
+                    </div>
                       <div className="col-12">
-                        <label
-                          htmlFor="inputProductType"
-                          className="form-label"
-                        >
+                        <label htmlFor="inputProductType" className="form-label">
                           Tipo de producto
                         </label>
                         <select
@@ -338,6 +371,6 @@ export function NewProduct() {
       </div>
     </div>
   );
+       
+ 
 }
-
-export default NewProduct;

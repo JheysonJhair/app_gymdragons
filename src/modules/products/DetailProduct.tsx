@@ -86,10 +86,6 @@ export function DetailProduct() {
                   <a href="#" className="btn btn-primary" onClick={handleEditClick}>
                     Editar
                   </a>
-                  <a href="#" className="btn btn-outline-primary">
-                    <span className="text">Agregar al carrito</span>{" "}
-                    <i className="bx bxs-cart-alt" />
-                  </a>
                 </div>
               </div>
             </div>

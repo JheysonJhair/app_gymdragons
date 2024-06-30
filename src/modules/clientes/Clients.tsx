@@ -56,7 +56,7 @@ export function Clients() {
 
       if (confirmacion.isConfirmed) {
         const response = await fetch(
-          `https://zonafitbk.ccontrolz.com/api/client/${id}`,
+          `https://zonafitbackend-production.up.railway.app/api/client/${id}`,
           {
             method: "DELETE",
           }

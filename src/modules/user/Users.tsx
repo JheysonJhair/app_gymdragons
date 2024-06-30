@@ -78,7 +78,7 @@ export function Users() {
 
       if (confirmacion.isConfirmed) {
         const response = await fetch(
-          `https://zonafitbk.ccontrolz.com/api/user/${id}`,
+          `https://zonafitbackend-production.up.railway.app/api/user/${id}`,
           {
             method: "DELETE",
           }
