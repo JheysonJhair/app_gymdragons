@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 import { Membership } from "../../types/Membership";
 import {
   getMembresias,
   addMembresia,
+  updateMembresia,
   deleteMembresia,
 } from "../../services/Membresias";
 import {
@@ -28,6 +31,9 @@ export function Memberships() {
   const [currentPage, setCurrentPage] = useState(1);
   const [membresiasPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editMembresia, setEditMembresia] = useState<Membership | null>(null);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   const indexOfLastMembresia = currentPage * membresiasPerPage;
@@ -101,28 +107,37 @@ export function Memberships() {
       });
       return;
     }
-    console.log(newMembresia);
     try {
-      await addMembresia(newMembresia);
-      const data = await getMembresias();
-      setMembresias(data);
-      setNewMembresia({
-        Name: "",
-        Price: "",
-        Time: "",
-        Enabled: true,
-      });
-
-      Swal.fire({
-        icon: "success",
-        title: "¡Éxito!",
-        text: "La membresía ha sido guardada correctamente.",
-      });
+      const response = await addMembresia(newMembresia);
+      if (response.success) {
+        Swal.fire({
+          title: "Correcto!",
+          text: response.msg,
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+        const data = await getMembresias();
+        setMembresias(data);
+        setNewMembresia({
+          Name: "",
+          Price: "",
+          Time: "",
+          Enabled: true,
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: response.msg,
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
+      }
     } catch (error) {
       Swal.fire({
+        title: "Error!",
+        text: "Oppss, algo salio mal!",
         icon: "error",
-        title: "Error",
-        text: "Hubo un problema al guardar la membresía. Por favor, inténtelo de nuevo.",
+        confirmButtonText: "Aceptar",
       });
     }
   };
@@ -146,7 +161,6 @@ export function Memberships() {
 
   //---------------------------------------------------------------- DELETE INPUT
   const handleDeleteMembership = async (id: any) => {
-    console.log(id);
     try {
       const confirmacion = await Swal.fire({
         title: "¿Estás seguro?",
@@ -179,13 +193,102 @@ export function Memberships() {
       }
     } catch (error) {
       Swal.fire({
+        title: "Error!",
+        text: "Oppss, algo salio mal!",
         icon: "error",
-        title: "Error",
-        text: "Hubo un problema al eliminar la membresía. Por favor, inténtelo de nuevo.",
+        confirmButtonText: "Aceptar",
       });
     }
   };
 
+  //---------------------------------------------------------------- OPEN MODAL FOR EDITING
+  const openEditModal = (membresia: Membership) => {
+    setEditMembresia(membresia);
+    setIsModalOpen(true);
+  };
+
+  //---------------------------------------------------------------- HANDLE EDIT INPUT CHANGE
+  const handleEditInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    if (!editMembresia) return;
+    const { id, value } = e.target;
+
+    if (id === "Enabled") {
+      setEditMembresia({
+        ...editMembresia,
+        [id]: value === "true" ? true : false,
+      });
+    } else {
+      setEditMembresia({
+        ...editMembresia,
+        [id]: id === "Price" || id === "Time" ? Number(value) : value,
+      });
+    }
+
+    const error = validateField(id as keyof Membership, value);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [id as keyof Membership]: error || undefined,
+    }));
+  };
+
+  //---------------------------------------------------------------- HANDLE EDIT FORM SUBMIT
+  const handleEditFormSubmit = async () => {
+    if (!editMembresia) return;
+
+    const formErrors: { [key in keyof Membership]?: string } = {};
+    let isValid = true;
+
+    Object.entries(editMembresia).forEach(([key, value]) => {
+      const error = validateField(
+        key as keyof Membership,
+        value as string | number
+      );
+      formErrors[key as keyof Membership] = error;
+      if (error) isValid = false;
+    });
+
+    setErrors(formErrors);
+
+    if (!isValid) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Por favor, complete los campos correctamente.",
+      });
+      return;
+    }
+    try {
+      const response = await updateMembresia(editMembresia);
+      if (response.success) {
+        Swal.fire({
+          title: "Correcto!",
+          text: response.msg,
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+        const data = await getMembresias();
+        setMembresias(data);
+        setIsModalOpen(false);
+        setEditMembresia(null);
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: response.msg,
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "Oppss, algo salio mal!",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+    }
+  };
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -200,7 +303,7 @@ export function Memberships() {
                   </a>
                 </li>
                 <li className="breadcrumb-item active" aria-current="page">
-                  Crear y listar membresias
+                  Crear y listar membresías
                 </li>
               </ol>
             </nav>
@@ -290,6 +393,7 @@ export function Memberships() {
               </div>
             </div>
           </div>
+
           <div className="col-12 col-lg-6">
             <div className="mb-4">
               <input
@@ -335,16 +439,15 @@ export function Memberships() {
                       </td>
                       <td>
                         <button
-                          className="btn btn-primary btn-sm"
-                          style={{ marginRight: "6px" }}
-                          title="Editar"
+                          className="btn btn-sm btn-primary me-2"
+                          onClick={() => openEditModal(membresia)}
                         >
                           <FaEdit />
                         </button>
                         <button
-                          className="btn btn-danger btn-sm"
+                          className="btn btn-sm btn-danger"
                           onClick={() =>
-                            handleDeleteMembership(membresia.IdMembership || 0)
+                            handleDeleteMembership(membresia.IdMembership)
                           }
                         >
                           <FaTrash />
@@ -370,6 +473,85 @@ export function Memberships() {
           </div>
         </div>
       </div>
+
+      <Modal show={isModalOpen} onHide={() => setIsModalOpen(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Editar Membresía</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {editMembresia && (
+            <div className="row g-3">
+              <div className="col-md-12">
+                <label htmlFor="Name" className="form-label">
+                  Nombre de membresía
+                </label>
+                <input
+                  type="text"
+                  className={`form-control ${errors.Name ? "is-invalid" : ""}`}
+                  id="Name"
+                  value={editMembresia.Name}
+                  onChange={handleEditInputChange}
+                />
+                {errors.Name && (
+                  <div className="invalid-feedback">{errors.Name}</div>
+                )}
+              </div>
+              <div className="col-md-12">
+                <label htmlFor="Price" className="form-label">
+                  Precio
+                </label>
+                <input
+                  type="number"
+                  className={`form-control ${errors.Price ? "is-invalid" : ""}`}
+                  id="Price"
+                  value={editMembresia.Price}
+                  onChange={handleEditInputChange}
+                />
+                {errors.Price && (
+                  <div className="invalid-feedback">{errors.Price}</div>
+                )}
+              </div>
+              <div className="col-md-12">
+                <label htmlFor="Time" className="form-label">
+                  Tiempo (meses)
+                </label>
+                <input
+                  type="number"
+                  className={`form-control ${errors.Time ? "is-invalid" : ""}`}
+                  id="Time"
+                  value={editMembresia.Time}
+                  onChange={handleEditInputChange}
+                />
+                {errors.Time && (
+                  <div className="invalid-feedback">{errors.Time}</div>
+                )}
+              </div>
+              <div className="col-md-12">
+                <label htmlFor="Enabled" className="form-label">
+                  Habilitado
+                </label>
+                <select
+                  className="form-control"
+                  id="Enabled"
+                  value={editMembresia.Enabled ? "true" : "false"}
+                  onChange={handleEditInputChange}
+                >
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleEditFormSubmit}>
+            Guardar cambios
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

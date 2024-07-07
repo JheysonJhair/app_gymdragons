@@ -1,12 +1,18 @@
 import { Membership } from "../types/Membership";
 
-const API_URL = "https://zonafitbackend-production.up.railway.app/api/";
+const API_URL =
+  "https://zonafitbackend-production.up.railway.app/api/membership";
+interface ApiResponseAll {
+  msg: string;
+  success: boolean;
+  data: Membership[];
+}
 
-//---------------------------------------------------------------- GET MEMBERSHIP
+//---------------------------------------------------------------- GET MEMBERSHIPS
 export const getMembresias = async (): Promise<Membership[]> => {
   try {
-    const response = await fetch(`${API_URL}membership`);
-    const data = await response.json();
+    const response = await fetch(API_URL);
+    const data: ApiResponseAll = await response.json();
     if (data.success) {
       return data.data;
     } else {
@@ -19,9 +25,11 @@ export const getMembresias = async (): Promise<Membership[]> => {
 };
 
 //---------------------------------------------------------------- POST MEMBERSHIP
-export const addMembresia = async (newMembresia: Membership): Promise<void> => {
+export const addMembresia = async (
+  newMembresia: Partial<Membership>
+): Promise<{ msg: string; success: boolean }> => {
   try {
-    const response = await fetch(`${API_URL}membership`, {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,27 +37,59 @@ export const addMembresia = async (newMembresia: Membership): Promise<void> => {
       body: JSON.stringify(newMembresia),
     });
     if (!response.ok) {
-      throw new Error("API:Error adding membresía");
+      throw new Error("API: Error adding membresía");
     }
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
   } catch (error) {
     console.error("API: Error adding membresía:", error);
+    return { msg: "Error adding membresía", success: false };
   }
 };
 
 //---------------------------------------------------------------- DELETE MEMBERSHIP
-export const deleteMembresia = async (membershipId: number): Promise<{ msg: string, success: boolean }> => {
+export const deleteMembresia = async (
+  membershipId: number
+): Promise<{ msg: string; success: boolean }> => {
   try {
-    const url = `${API_URL}membership/${membershipId}`;
+    const url = `${API_URL}/${membershipId}`;
     const response = await fetch(url, {
       method: "DELETE",
     });
-    const data = await response.json();
     if (!response.ok) {
       throw new Error("API: Error al eliminar la membresia");
     }
-    return data;
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
   } catch (error) {
     console.error("API: Error al eliminar la membresia:", error);
     return { msg: "Error al eliminar la membresia", success: false };
+  }
+};
+
+//---------------------------------------------------------------- UPDATE MEMBERSHIP
+export const updateMembresia = async (
+  updatedMembresia: Membership
+): Promise<{ msg: string; success: boolean }> => {
+  try {
+    const url = `${API_URL}/update`;
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedMembresia),
+    });
+    if (!response.ok) {
+      throw new Error("API: Error updating membresía");
+    }
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
+  } catch (error) {
+    console.error("API: Error updating membresía:", error);
+    return { msg: "Error updating membresía", success: false };
   }
 };
