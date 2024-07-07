@@ -62,29 +62,37 @@ export function NewUser() {
 
       if (Object.keys(errores).length > 0) {
         Swal.fire({
-          title: "Errsssor!",
-          text: "error.message",
+          title: "Error!",
+          text: "Complete todos los campos!",
           icon: "error",
           confirmButtonText: "Aceptar",
         });
         return;
       }
-      await crearUsuario(nuevoUsuario as Partial<User>);
-      Swal.fire({
-        title: "Correcto!",
-        text: "El usuario se registró correctamente!",
-        icon: "success",
-        confirmButtonText: "Aceptar",
-      });
-      navigate("/area/usuarios/");
+      const response = await crearUsuario(nuevoUsuario as Partial<User>);
+      if (response.success) {
+        Swal.fire({
+          title: "Correcto!",
+          text: response.msg,
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+        navigate("/area/users/");
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: response.msg,
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
+      }
     } catch (error) {
       Swal.fire({
         title: "Error!",
-        text: "error.message",
+        text: "Oppss, algo salio mal!",
         icon: "error",
         confirmButtonText: "Aceptar",
       });
-      console.error("Error al registrar el nuevo usuario:", error);
     }
   };
   //------------------------------------ INPUT CHANGE
@@ -381,35 +389,6 @@ export function NewUser() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input09" className="col-sm-4 col-form-label">
-                  Aceeso
-                </label>
-                <div className="col-sm-8">
-                  <div className="input-group">
-                    <span className="input-group-text">
-                      <i className="bx bx-log-in" />
-                    </span>
-                    <select
-                      className={`form-select ${
-                        errorMessages.Access && "is-invalid"
-                      }`}
-                      name="Access"
-                      onChange={handleInputChange}
-                      id="input09"
-                    >
-                      <option>Seleccionar acceso</option>
-                      <option value="true">Admitir</option>
-                      <option value="false">Denegar</option>
-                    </select>
-                    {errorMessages.Access && (
-                      <div className="invalid-feedback">
-                        {errorMessages.Access}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="row mb-3">
                 <label htmlFor="input08" className="col-sm-4 col-form-label">
                   Fecha de nacimiento
                 </label>
@@ -420,7 +399,10 @@ export function NewUser() {
                     </span>
                     <input
                       type="date"
-                      className="form-control"
+                      className={`form-control ${
+                        errorMessages.BirthDate ? "is-invalid" : ""
+                      }`}
+                      id="inputProductType"
                       placeholder="Fecha de Nacimiento"
                       name="BirthDate"
                       onChange={handleInputChange}
@@ -433,6 +415,7 @@ export function NewUser() {
                   </div>
                 </div>
               </div>
+
               <div className="row mt-4">
                 <div className="col"></div>
                 <div className="col-auto ml-auto">

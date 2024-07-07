@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { Product } from "../../../types/Product";
 import { updateProduct } from "../../../services/Producto";
+import Swal from "sweetalert2";
 
 interface EditProductModalProps {
   show: boolean;
@@ -14,7 +15,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   show,
   onHide,
   product,
-  onUpdate
+  onUpdate,
 }) => {
   const [formData, setFormData] = useState({
     Name: product?.Name || "",
@@ -26,7 +27,9 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     Stock: product?.Stock || 0,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -37,11 +40,15 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   const handleSubmit = async () => {
     if (product) {
       try {
-        const updatedProduct = await updateProduct(product.IdProduct, formData);
-        onUpdate(updatedProduct);
+        const response = await updateProduct(product.IdProduct, formData);
+        onUpdate(response.data);
         onHide();
+        if (!response.success) {
+          throw new Error(response.msg);
+        }
+        Swal.fire("Actualizado", response.msg, "success");
       } catch (error) {
-        console.error("Failed to update product:", error);
+        Swal.fire("Error", "Oppss, algo salio mal!", "error");
       }
     }
   };
@@ -68,15 +75,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
               as="textarea"
               name="Description"
               value={formData.Description}
-              onChange={handleChange}
-            />
-          </Form.Group>
-          <Form.Group controlId="productImage">
-            <Form.Label>Imagen</Form.Label>
-            <Form.Control
-              type="text"
-              name="Image"
-              value={formData.Image}
               onChange={handleChange}
             />
           </Form.Group>
@@ -122,7 +120,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         <Button variant="secondary" onClick={onHide}>
           Cancelar
         </Button>
-        <Button variant="primary" onClick={handleSubmit}>
+        <Button variant="danger" onClick={handleSubmit}>
           Guardar Cambios
         </Button>
       </Modal.Footer>

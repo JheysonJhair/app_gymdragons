@@ -5,8 +5,6 @@ import { Client, ErrorMessages } from "../../types/Client";
 import { useNavigate } from "react-router-dom";
 import {
   validateRequiredField,
-  validateDNI,
-  validateEmail,
   validatePhoneNumber,
 } from "../../utils/validations";
 
@@ -16,32 +14,16 @@ export function NewClient() {
   const [errorMessages, setErrorMessages] = useState<ErrorMessages>({
     FirstName: "",
     LastName: "",
-    Address: "",
-    MaritalStatus: "",
     Gender: "",
-    DocumentType: "",
-    Document: "",
-    BirthDate: "",
-    Mail: "",
     PhoneNumber: "",
-    Whatsapp: "",
-    Note: "",
   });
 
-  //---------------------------------------------------------------- POST CLIENT
   const handleRegisterClient = async () => {
     const requiredFields: (keyof ErrorMessages)[] = [
       "FirstName",
       "LastName",
-      "Address",
-      "MaritalStatus",
       "Gender",
-      "DocumentType",
-      "Document",
-      "BirthDate",
-      "Mail",
       "PhoneNumber",
-      "Whatsapp",
     ];
 
     const newErrorMessages = { ...errorMessages };
@@ -68,14 +50,23 @@ export function NewClient() {
     }
 
     try {
-      await crearCliente(nuevoCliente);
-      Swal.fire({
-        title: "Correcto!",
-        text: "El cliente se registró correctamente!",
-        icon: "success",
-        confirmButtonText: "Aceptar",
-      });
-      navigate("/area/clientes/");
+      const response = await crearCliente(nuevoCliente);
+      if (response.success) {
+        Swal.fire({
+          title: "Correcto!",
+          text: response.msg,
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+        navigate("/area/clients/");
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: response.msg,
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
+      }
     } catch (error) {
       Swal.fire({
         title: "Error!",
@@ -83,11 +74,9 @@ export function NewClient() {
         icon: "error",
         confirmButtonText: "Aceptar",
       });
-      console.error("Error al registrar el nuevo cliente:", error);
     }
   };
 
-  //---------------------------------------------------------------- INPUT CHANGE
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -105,23 +94,16 @@ export function NewClient() {
       [name]: validateField(name as keyof ErrorMessages, value),
     }));
   };
-  //--------------------------------------------- VALIDATION
+
   const validateField = (
     name: keyof ErrorMessages,
     value: string | undefined
   ): string | null => {
     switch (name) {
-      case "Document":
-        return validateDNI(value) || validateRequiredField(value) || null;
-      case "Mail":
-        return validateEmail(value) || validateRequiredField(value) || null;
       case "PhoneNumber":
-      case "Whatsapp":
         return (
           validatePhoneNumber(value) || validateRequiredField(value) || null
         );
-      case "BirthDate":
-        return validateRequiredField(value) || "";
       default:
         return validateRequiredField(value) || null;
     }
@@ -151,10 +133,10 @@ export function NewClient() {
           <div className="row">
             <div className="col-sm-6">
               <div className="row mb-3">
-                <label htmlFor="input01" className="col-sm-4 col-form-label">
+                <label htmlFor="input01" className="col-sm-5 col-form-label">
                   Nombres
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-user" />
@@ -178,10 +160,10 @@ export function NewClient() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input02" className="col-sm-4 col-form-label">
+                <label htmlFor="input02" className="col-sm-5 col-form-label">
                   Apellidos
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-user" />
@@ -206,10 +188,10 @@ export function NewClient() {
               </div>
 
               <div className="row mb-3">
-                <label htmlFor="input03" className="col-sm-4 col-form-label">
-                  Direccion
+                <label htmlFor="input03" className="col-sm-5 col-form-label">
+                  Direccion <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-map" />
@@ -233,10 +215,10 @@ export function NewClient() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input04" className="col-sm-4 col-form-label">
-                  Estado civil
+                <label htmlFor="input04" className="col-sm-5 col-form-label">
+                  Estado civil <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-heart" />
@@ -263,10 +245,10 @@ export function NewClient() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input05" className="col-sm-4 col-form-label">
+                <label htmlFor="input05" className="col-sm-5 col-form-label">
                   Género
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-user-circle" />
@@ -292,10 +274,10 @@ export function NewClient() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input06" className="col-sm-4 col-form-label">
-                  Tipo de documento
+                <label htmlFor="input06" className="col-sm-5 col-form-label">
+                  Tipo de documento <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-globe" />
@@ -326,10 +308,10 @@ export function NewClient() {
                 }`}
                 id="dniField"
               >
-                <label htmlFor="input07" className="col-sm-4 col-form-label">
-                  DNI
+                <label htmlFor="input07" className="col-sm-5 col-form-label">
+                  DNI <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-id-card" />
@@ -358,10 +340,10 @@ export function NewClient() {
                 }`}
                 id="carnetField"
               >
-                <label htmlFor="input13" className="col-sm-4 col-form-label">
+                <label htmlFor="input13" className="col-sm-5 col-form-label">
                   Carnet
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-id-card" />
@@ -385,10 +367,10 @@ export function NewClient() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input08" className="col-sm-4 col-form-label">
-                  Fecha de nacimiento
+                <label htmlFor="input08" className="col-sm-5 col-form-label">
+                  Fecha de nacimiento <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-calendar-plus"></i>
@@ -419,10 +401,10 @@ export function NewClient() {
                 />
               </div>
               <div className="row mb-3">
-                <label htmlFor="input09" className="col-sm-4 col-form-label">
-                  Correo Electrónico
+                <label htmlFor="input09" className="col-sm-5 col-form-label">
+                  Correo Electrónico <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-envelope" />
@@ -446,10 +428,10 @@ export function NewClient() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input10" className="col-sm-4 col-form-label">
+                <label htmlFor="input10" className="col-sm-5 col-form-label">
                   Telefono
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-phone" />
@@ -473,10 +455,10 @@ export function NewClient() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input11" className="col-sm-4 col-form-label">
-                  Whatssap
+                <label htmlFor="input11" className="col-sm-5 col-form-label">
+                  Whatssap <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-phone" />
@@ -500,11 +482,11 @@ export function NewClient() {
                 </div>
               </div>
               <div className="row mb-3">
-                <label htmlFor="input12" className="col-sm-4 col-form-label">
+                <label htmlFor="input12" className="col-sm-5 col-form-label">
                   Nota <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
 
-                <div className="col-sm-8">
+                <div className="col-sm-7">
                   <div className="input-group">
                     <span className="input-group-text">
                       <i className="bx bx-user" />

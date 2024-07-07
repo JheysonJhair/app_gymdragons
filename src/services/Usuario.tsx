@@ -1,14 +1,17 @@
 import { User } from "../types/User";
+
 interface ApiResponse {
   msg: string;
   success: boolean;
   data: User[];
 }
 
+const API_URL = "https://zonafitbackend-production.up.railway.app/api/user";
+
 //---------------------------------------------------------------- GET USER
 export async function obtenerUsuarios(): Promise<User[]> {
   try {
-    const response = await fetch("https://zonafitbackend-production.up.railway.app/api/user");
+    const response = await fetch(`${API_URL}`);
     if (!response.ok) {
       throw new Error("Error al obtener los datos");
     }
@@ -28,7 +31,7 @@ export async function crearUsuario(
   usuario: Partial<User>
 ): Promise<{ msg: string; success: boolean }> {
   try {
-    const response = await fetch("https://zonafitbackend-production.up.railway.app/api/user", {
+    const response = await fetch(`${API_URL}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,10 +50,11 @@ export async function crearUsuario(
 }
 
 //---------------------------------------------------------------- PUT USER
-export async function actualizarUsuario(usuario: Partial<User>): Promise<void> {
+export async function actualizarUsuario(
+  usuario: User
+): Promise<{ msg: string; success: boolean }> {
   try {
-    const url = `https://zonafitbackend-production.up.railway.app/api/user/update`;
-    const response = await fetch(url, {
+    const response = await fetch(`${API_URL}/${usuario.IdUser}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -60,6 +64,9 @@ export async function actualizarUsuario(usuario: Partial<User>): Promise<void> {
     if (!response.ok) {
       throw new Error("Error al actualizar el usuario");
     }
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
   } catch (error) {
     throw new Error("Error al actualizar el usuario: " + error);
   }
@@ -70,7 +77,7 @@ export async function obtenerUsuarioPorId(
   usuarioId: number
 ): Promise<User | null> {
   try {
-    const url = `https://zonafitbackend-production.up.railway.app/api/user/${usuarioId}`;
+    const url = `${API_URL}/${usuarioId}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Error al obtener el usuario");
@@ -85,16 +92,22 @@ export async function obtenerUsuarioPorId(
     return null;
   }
 }
+
 //---------------------------------------------------------------- DELETE USER
-export async function eliminarUsuario(usuarioId: number): Promise<void> {
+export async function eliminarUsuario(
+  usuarioId: number
+): Promise<{ msg: string; success: boolean }> {
   try {
-    const url = `https://zonafitbackend-production.up.railway.app/api/user/${usuarioId}`;
+    const url = `${API_URL}/${usuarioId}`;
     const response = await fetch(url, {
       method: "DELETE",
     });
     if (!response.ok) {
       throw new Error("Error al eliminar el usuario");
     }
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
   } catch (error) {
     throw new Error("Error al eliminar el usuario: " + error);
   }

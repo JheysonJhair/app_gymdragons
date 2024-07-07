@@ -33,7 +33,9 @@ export async function obtenerClientes(): Promise<Client[]> {
 }
 
 //---------------------------------------------------------------- POST CLIENT
-export async function crearCliente(cliente: Partial<Client>): Promise<void> {
+export async function crearCliente(
+  cliente: Partial<Client>
+): Promise<{ msg: string; success: boolean }> {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
@@ -45,13 +47,43 @@ export async function crearCliente(cliente: Partial<Client>): Promise<void> {
     if (!response.ok) {
       throw new Error("Error al crear el cliente");
     }
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
   } catch (error) {
     throw new Error("Error al crear el cliente: " + error);
   }
 }
 
+//---------------------------------------------------------------- UPDATE CLIENT
+export async function actualizarCliente(
+  clienteId: number,
+  cliente: Partial<Client>
+): Promise<{ msg: string; success: boolean }> {
+  try {
+    const url = `${API_URL}${clienteId}`;
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(cliente),
+    });
+    if (!response.ok) {
+      throw new Error("Error al actualizar el cliente");
+    }
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
+  } catch (error) {
+    throw new Error("Error al actualizar el cliente: " + error);
+  }
+}
+
 //---------------------------------------------------------------- DELETE CLIENT
-export async function eliminarCliente(clienteId: number): Promise<void> {
+export async function eliminarCliente(
+  clienteId: number
+): Promise<{ msg: string; success: boolean }> {
   try {
     const url = `${API_URL}${clienteId}`;
     const response = await fetch(url, {
@@ -60,13 +92,18 @@ export async function eliminarCliente(clienteId: number): Promise<void> {
     if (!response.ok) {
       throw new Error("Error al eliminar el cliente");
     }
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
   } catch (error) {
     throw new Error("Error al eliminar el cliente: " + error);
   }
 }
 
 //---------------------------------------------------------------- GET BY DNI CLIENT
-export async function obtenerClientePorDNI(dni: string): Promise<Client | null> {
+export async function obtenerClientePorDNI(
+  dni: string
+): Promise<Client | null> {
   try {
     const url = `${API_URL}dni/${dni}`;
     const response = await fetch(url);
@@ -87,7 +124,9 @@ export async function obtenerClientePorDNI(dni: string): Promise<Client | null> 
 }
 
 //---------------------------------------------------------------- GET BY ID CLIENT
-export async function obtenerClientePorID(clienteId: number): Promise<Client | null> {
+export async function obtenerClientePorID(
+  clienteId: number
+): Promise<Client | null> {
   try {
     const url = `${API_URL}${clienteId}`;
     const response = await fetch(url);

@@ -3,7 +3,7 @@ import { Product } from "../../types/Product";
 import { fetchProducts } from "../../services/Producto";
 import { NavLink } from "react-router-dom";
 import CartIcon from "./components/CartIcon";
-import './Products.css'; // Importa el archivo CSS
+import './Products.css'; 
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -36,7 +36,7 @@ export function Products() {
   );
 
   return (
-    <div className="page-wrapper">
+    <div style={{marginTop:"110px"}} className="page-wrapper">
       <div className="cart-icon-container">
         <CartIcon cartItems={cart} />
       </div>
@@ -93,10 +93,10 @@ export function Products() {
                     <p className="mb-0 float-start">
                       <strong>Stock:</strong> {product.Stock}
                     </p>
-                    <p className="mb-0 float-end fw-bold">${product.Price}</p>
+                    <p className="mb-0 float-end fw-bold">s./{product.Price}</p>
                   </div>
                   <button
-                    className="btn btn-outline-primary mt-2"
+                    className="btn btn-outline-danger mt-2"
                     onClick={() => handleAddToCart(product)}
                   >
                     <i className="bx bxs-cart-add" /> Agregar al carrito

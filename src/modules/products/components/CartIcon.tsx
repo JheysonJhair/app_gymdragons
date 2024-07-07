@@ -19,9 +19,9 @@ const CartIcon: React.FC<CartIconProps> = ({ cartItems }) => {
   return (
     <>
       <div className="cart-icon">
-        <NavLink to="/area/cart/" className="btn btn-primary position-relative">
+        <NavLink to="/area/cart/" className="btn btn-danger position-relative">
           <i className="bx bxs-cart" />
-          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
             {cartItems.length}
           </span>
         </NavLink>
@@ -29,12 +29,12 @@ const CartIcon: React.FC<CartIconProps> = ({ cartItems }) => {
           <ul className="list-group">
             {cartItems.map((item) => (
               <li key={item.IdProduct} className="list-group-item">
-                {item.Name} - ${item.Price}
+                {item.Name} - s./{item.Price}
               </li>
             ))}
           </ul>
           <div className="cart-total mt-3">
-            <strong>Total: ${totalPrice.toFixed(2)}</strong>
+            <strong>Total: s./{totalPrice.toFixed(2)}</strong>
           </div>
           <button className="btn btn-success mt-2 w-100" onClick={handleShowModal}>
             Realizar Venta
@@ -50,12 +50,12 @@ const CartIcon: React.FC<CartIconProps> = ({ cartItems }) => {
           <ul className="list-group">
             {cartItems.map((item) => (
               <li key={item.IdProduct} className="list-group-item">
-                {item.Name} - ${item.Price}
+                {item.Name} - s./{item.Price}
               </li>
             ))}
           </ul>
           <div className="cart-total mt-3">
-            <strong>Total: ${totalPrice.toFixed(2)}</strong>
+            <strong>Total: s/{totalPrice.toFixed(2)}</strong>
           </div>
         </Modal.Body>
         <Modal.Footer>

@@ -5,7 +5,11 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
 import { User } from "../../types/User";
-import { obtenerUsuarios } from "../../services/Usuario";
+import {
+  actualizarUsuario,
+  eliminarUsuario,
+  obtenerUsuarios,
+} from "../../services/Usuario";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -32,6 +36,7 @@ export function Users() {
     )
   );
 
+  //---------------------------------------------------------------- GET USER
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -45,24 +50,7 @@ export function Users() {
     fetchData();
   }, []);
 
-  const handleEditUser = (usuario: User) => {
-    setSelectedUser(usuario);
-    setModalIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setSelectedUser(null);
-  };
-
-  const saveChanges = () => {
-    // Aquí deberías implementar la lógica para guardar los cambios del usuario
-    // Puedes hacer una solicitud HTTP para actualizar el usuario en el servidor
-    // Y luego actualizar el estado de usuarios y cerrar el modal
-    setModalIsOpen(false);
-    setSelectedUser(null);
-  };
-
+  //---------------------------------------------------------------- DELETE USER
   const handleDeleteUser = async (id: number) => {
     try {
       const confirmacion = await Swal.fire({
@@ -77,14 +65,9 @@ export function Users() {
       });
 
       if (confirmacion.isConfirmed) {
-        const response = await fetch(
-          `https://zonafitbackend-production.up.railway.app/api/user/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Error al eliminar el usuario");
+        const response = await eliminarUsuario(id);
+        if (!response.success) {
+          throw new Error(response.msg);
         }
 
         const updatedUsuarios = usuarios.filter(
@@ -92,16 +75,43 @@ export function Users() {
         );
         setUsuarios(updatedUsuarios);
 
-        await Swal.fire(
-          "¡Eliminado!",
-          "El usuario ha sido eliminado.",
-          "success"
-        );
+        await Swal.fire("¡Eliminado!", response.msg, "success");
       }
     } catch (error) {
-      console.error("Error al eliminar el usuario:", error);
-      Swal.fire("Error", "Hubo un error al eliminar el usuario", "error");
+      Swal.fire("Error", "Oppss, algo salio mal!", "error");
     }
+  };
+
+  //---------------------------------------------------------------- UPDATE USER
+  const handleEditUser = (usuario: User) => {
+    setSelectedUser(usuario);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedUser(null);
+  };
+
+  const saveChanges = async () => {
+    if (selectedUser) {
+      try {
+        const response = await actualizarUsuario(selectedUser);
+        if (!response.success) {
+          throw new Error(response.msg);
+        }
+        setUsuarios(
+          usuarios.map((user) =>
+            user.IdUser === selectedUser.IdUser ? selectedUser : user
+          )
+        );
+        Swal.fire("Actualizado", response.msg, "success");
+      } catch (error) {
+        Swal.fire("Error", "Oppss, algo salio mal!", "error");
+      }
+    }
+    setModalIsOpen(false);
+    setSelectedUser(null);
   };
 
   return (
@@ -147,7 +157,7 @@ export function Users() {
                 <th>Dni</th>
                 <th>Teléfono</th>
                 <th>Fecha de nacimiento</th>
-                <th>ACESO</th>
+                <th>ACCESO</th>
                 <th>ROL</th>
                 <th>Acciones</th>
               </tr>
@@ -213,7 +223,6 @@ export function Users() {
         </ul>
       </div>
 
-      {/* Modal para editar usuario */}
       <Modal show={modalIsOpen} onHide={closeModal}>
         <Modal.Header closeButton>
           <Modal.Title>Editar Usuario</Modal.Title>
@@ -221,51 +230,169 @@ export function Users() {
         <Modal.Body>
           {selectedUser && (
             <form>
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label">
-                  Nombre de Usuario
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="username"
-                  value={selectedUser.UserName}
-                  readOnly
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="firstName" className="form-label">
-                  Nombre(s)
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="firstName"
-                  value={selectedUser.FirstName}
-                  onChange={(e) =>
-                    setSelectedUser({
-                      ...selectedUser,
-                      FirstName: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="lastName" className="form-label">
-                  Apellido(s)
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="lastName"
-                  value={selectedUser.LastName}
-                  onChange={(e) =>
-                    setSelectedUser({
-                      ...selectedUser,
-                      LastName: e.target.value,
-                    })
-                  }
-                />
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label htmlFor="username" className="form-label">
+                      Nombre de Usuario
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="username"
+                      value={selectedUser.UserName}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          UserName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="password" className="form-label">
+                      Contraseña
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="password"
+                      value={selectedUser.Password}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          Password: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="firstName" className="form-label">
+                      Nombre(s)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="firstName"
+                      value={selectedUser.FirstName}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          FirstName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="lastName" className="form-label">
+                      Apellido(s)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="lastName"
+                      value={selectedUser.LastName}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          LastName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="dni" className="form-label">
+                      Dni
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="dni"
+                      value={selectedUser.Dni}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          Dni: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label htmlFor="phoneNumber" className="form-label">
+                      Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="phoneNumber"
+                      value={selectedUser.PhoneNumber}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          PhoneNumber: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="birthDate" className="form-label">
+                      Fecha de nacimiento
+                    </label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      id="birthDate"
+                      value={selectedUser.BirthDate}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          BirthDate: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="access" className="form-label">
+                      Acceso
+                    </label>
+                    <select
+                      className="form-control"
+                      id="access"
+                      value={selectedUser.Access ? "1" : "0"}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          Access: e.target.value === "1",
+                        })
+                      }
+                    >
+                      <option value="1">Activo</option>
+                      <option value="0">Inactivo</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="roleId" className="form-label">
+                      Rol
+                    </label>
+                    <select
+                      className="form-control"
+                      id="roleId"
+                      value={selectedUser.RoleId}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          RoleId: Number(e.target.value),
+                        })
+                      }
+                    >
+                      <option value="1">Administrador</option>
+                      <option value="2">Vendedor</option>
+                      <option value="0">Sin Rol</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </form>
           )}

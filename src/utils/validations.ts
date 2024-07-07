@@ -1,5 +1,3 @@
-// validations.ts
-
 const dniRegex = /^[0-9]{8}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^9\d{8}$/;
@@ -17,7 +15,9 @@ export const validateDNI = (value: string | undefined): string | undefined => {
     : undefined;
 };
 
-export const validateEmail = (value: string | undefined): string | undefined => {
+export const validateEmail = (
+  value: string | undefined
+): string | undefined => {
   return value && !emailRegex.test(value)
     ? "Por favor ingrese un correo electrónico válido."
     : undefined;

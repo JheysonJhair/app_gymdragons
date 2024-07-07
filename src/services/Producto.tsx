@@ -2,61 +2,122 @@ import { Product, newProduct } from "../types/Product";
 
 const API_URL = "https://zonafitbackend-production.up.railway.app/api/product";
 
-export const fetchProducts = async (): Promise<Product[]> => {
-  const response = await fetch(API_URL);
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
+interface ApiResponseAll {
+  msg: string;
+  success: boolean;
+  data: Product[];
+}
+
+interface ApiResponse {
+  msg: string;
+  success: boolean;
+  data: Product;
+}
+
+//---------------------------------------------------------------- GET PRODUCTS
+
+export async function fetchProducts(): Promise<Product[]> {
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) {
+      throw new Error("Error al obtener los datos");
+    }
+    const responseData: ApiResponseAll = await response.json();
+    if (!responseData.success) {
+      throw new Error(responseData.msg);
+    }
+    return responseData.data;
+  } catch (error) {
+    console.error("Error:", error);
+    return [];
   }
-  const data = await response.json();
-  return data.data;
-};
+}
 
-export const addProduct = async (
-  newProduct: newProduct
-): Promise<{ msg: string; success: boolean }> => {
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(newProduct),
-  });
+//---------------------------------------------------------------- POST PRODUCT
 
-  if (!response.ok) {
-    throw new Error("Failed to add product");
+export async function addProduct(
+  newProduct: Partial<newProduct>
+): Promise<{ msg: string; success: boolean }> {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newProduct),
+    });
+    if (!response.ok) {
+      throw new Error("Error al crear el producto");
+    }
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
+    return responseData;
+  } catch (error) {
+    throw new Error("Error al crear el producto: " + error);
   }
+}
 
-  const responseData = await response.json();
-  return {
-    msg: responseData.msg,
-    success: responseData.success,
-  };
-};
-export const fetchProductById = async (productId: string): Promise<Product> => {
-  const response = await fetch(`${API_URL}/${productId}`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch product");
-  }
-  const data = await response.json();
-  return data.data;
-};
-
-export const updateProduct = async (
-  productId: any,
+//---------------------------------------------------------------- UPDATE PRODUCT
+export async function updateProduct(
+  productId: number,
   updatedProduct: Partial<Product>
-): Promise<Product> => {
-  const response = await fetch(`${API_URL}/${productId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedProduct),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to update product");
+): Promise<{ msg: string; success: boolean; data: Product }> {
+  try {
+    const url = `${API_URL}/${productId}`;
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedProduct),
+    });
+    if (!response.ok) {
+      throw new Error("Error al actualizar el producto");
+    }
+    const responseData: { msg: string; success: boolean; data: Product } =
+      await response.json();
+    return responseData;
+  } catch (error) {
+    throw new Error("Error al actualizar el producto: " );
   }
+}
 
-  const data = await response.json();
-  return data.data;
-};
+
+//---------------------------------------------------------------- GET BY ID PRODUCT
+export async function fetchProductById(
+  productId: any
+): Promise<Product | null> {
+  try {
+    const url = `${API_URL}/${productId}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Error al obtener los datos del producto por ID");
+    }
+    const responseData: ApiResponse = await response.json();
+    if (!responseData.success || !responseData.data) {
+      throw new Error(
+        responseData.msg || "Error al obtener los datos del producto"
+      );
+    }
+    return responseData.data;
+  } catch (error) {
+    console.error("Error:", error);
+    return null;
+  }
+}
+//---------------------------------------------------------------- DELETE PRODUCT
+export async function deleteProduct(productId: string): Promise<{ msg: string; success: boolean }> {
+  try {
+    const url = `${API_URL}/${productId}`;
+    const response = await fetch(url, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error("Error al eliminar el producto");
+    }
+    const responseData: { msg: string; success: boolean } = await response.json();
+    return responseData;
+  } catch (error) {
+    throw new Error(`Error al eliminar el producto`);
+  }
+}

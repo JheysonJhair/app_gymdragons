@@ -5,7 +5,11 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
 import { Client } from "../../types/Client";
-import { obtenerClientes } from "../../services/Cliente";
+import {
+  actualizarCliente,
+  eliminarCliente,
+  obtenerClientes,
+} from "../../services/Cliente";
 
 export function Clients() {
   const [clientes, setClientes] = useState<Client[]>([]);
@@ -55,33 +59,21 @@ export function Clients() {
       });
 
       if (confirmacion.isConfirmed) {
-        const response = await fetch(
-          `https://zonafitbackend-production.up.railway.app/api/client/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Error al eliminar el cliente");
+        const response = await eliminarCliente(id);
+        if (!response.success) {
+          throw new Error(response.msg);
         }
 
         const updatedClientes = clientes.filter(
           (cliente) => cliente.IdClient !== id
         );
         setClientes(updatedClientes);
-
-        await Swal.fire(
-          "¡Eliminado!",
-          "Tu cliente ha sido eliminado.",
-          "success"
-        );
+        await Swal.fire("¡Eliminado!", response.msg, "success");
       }
     } catch (error) {
-      console.error("Error al eliminar el cliente:", error);
-      Swal.fire("Error", "Hubo un error al eliminar el cliente", "error");
+      Swal.fire("Error", "Oppss, algo salio mal!", "error");
     }
   };
-
   //---------------------------------------------------------------- EDIT CLIENT
   const handleEditClient = (client: Client) => {
     setSelectedClient(client);
@@ -94,12 +86,41 @@ export function Clients() {
   };
 
   const saveChanges = async () => {
-    try {
-      Swal.fire("¡Actualizado!", "El cliente ha sido actualizado.", "success");
-    } catch (error) {
-      console.error("Error al actualizar el cliente:", error);
-      Swal.fire("Error", "Hubo un error al actualizar el cliente", "error");
+    if (selectedClient && selectedClient.IdClient !== undefined) {
+      const { FirstName, LastName, PhoneNumber, Gender } = selectedClient;
+      if (
+        !FirstName?.trim() ||
+        !LastName?.trim() ||
+        !PhoneNumber?.trim() ||
+        !Gender?.trim()
+      ) {
+        Swal.fire(
+          "Error",
+          "El campo nombre, apellidos, sexo y telefono son obligatorio.",
+          "error"
+        );
+        return;
+      }
+      try {
+        const response = await actualizarCliente(
+          selectedClient.IdClient,
+          selectedClient
+        );
+        if (!response.success) {
+          throw new Error(response.msg);
+        }
+        setClientes(
+          clientes.map((user) =>
+            user.IdClient === selectedClient.IdClient ? selectedClient : user
+          )
+        );
+        Swal.fire("Actualizado", response.msg, "success");
+      } catch (error) {
+        Swal.fire("Error", "Oppss, algo salio mal!", "error");
+      }
     }
+    setModalIsOpen(false);
+    setSelectedClient(null);
   };
 
   return (
@@ -207,7 +228,7 @@ export function Clients() {
                 <div className="col-md-6">
                   <div className="mb-3">
                     <label htmlFor="firstName" className="form-label">
-                      Nombre(s)
+                      Nombre(s) <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -220,6 +241,7 @@ export function Clients() {
                           FirstName: e.target.value,
                         })
                       }
+                      required
                     />
                   </div>
                   <div className="mb-3">
@@ -294,7 +316,7 @@ export function Clients() {
                 <div className="col-md-6">
                   <div className="mb-3">
                     <label htmlFor="lastName" className="form-label">
-                      Apellido(s)
+                      Apellido(s) <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -307,11 +329,12 @@ export function Clients() {
                           LastName: e.target.value,
                         })
                       }
+                      required
                     />
                   </div>
                   <div className="mb-3">
                     <label htmlFor="phoneNumber" className="form-label">
-                      Teléfono
+                      Teléfono <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -324,6 +347,7 @@ export function Clients() {
                           PhoneNumber: e.target.value,
                         })
                       }
+                      required
                     />
                   </div>
                   <div className="mb-3">
@@ -345,10 +369,9 @@ export function Clients() {
                   </div>
                   <div className="mb-3">
                     <label htmlFor="gender" className="form-label">
-                      Género
+                      Género <span className="text-danger">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       className="form-control"
                       id="gender"
                       value={selectedClient.Gender}
@@ -358,13 +381,19 @@ export function Clients() {
                           Gender: e.target.value,
                         })
                       }
-                    />
+                      required
+                    >
+                      <option value="">Seleccionar</option>
+                      <option value="Masculino">Masculino</option>
+                      <option value="Femenino">Femenino</option>
+                    </select>
                   </div>
                 </div>
               </div>
             </form>
           )}
         </Modal.Body>
+
         <Modal.Footer>
           <Button variant="secondary" onClick={closeModal}>
             Cancelar
