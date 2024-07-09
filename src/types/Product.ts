@@ -6,15 +6,16 @@ export interface Product {
   Description?: string;
   Type?: number;
   PurchasePrice?: number;
-  Image: string;
+  file: File;
 }
 export type newProduct = {
   Name: string;
   Description: string;
-  Image: string;
+  file: File;
   Price: number;
   PurchasePrice: number;
   Type: number;
+  Stock:number;
 };
 
 export type ErrorMessages = {

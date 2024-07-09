@@ -160,30 +160,28 @@ export function Clients() {
           >
             <thead>
               <tr>
+                <th>Codigo</th>
                 <th>Nombres</th>
                 <th>Apellidos</th>
                 <th>DNI</th>
                 <th>Teléfono</th>
                 <th>Email</th>
                 <th>Estado Civil</th>
-                <th>Whatssap</th>
                 <th>Género</th>
-                <th>Dirección</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filteredClientes.map((cliente, index) => (
                 <tr key={index}>
+                  <td>{cliente.Code}</td>
                   <td>{cliente.FirstName}</td>
                   <td>{cliente.LastName}</td>
                   <td>{cliente.Document}</td>
                   <td>{cliente.PhoneNumber}</td>
                   <td>{cliente.Mail}</td>
                   <td>{cliente.MaritalStatus}</td>
-                  <td>{cliente.Whatsapp}</td>
                   <td>{cliente.Gender}</td>
-                  <td>{cliente.Address}</td>
                   <td>
                     <button
                       className="btn btn-primary btn-sm"

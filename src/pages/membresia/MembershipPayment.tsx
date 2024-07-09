@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Client } from "../../types/Client";
 import { Membership } from "../../types/Membership";
-import { obtenerClientePorDNI } from "../../services/Cliente";
+import { obtenerClientePorCODE } from "../../services/Cliente";
 import { getMembresias } from "../../services/Membresias";
 import { useAuth } from "../../hooks/AuthContext";
 import Swal from "sweetalert2";
-import { realizarPagoDeMembresia } from "../../services/MembershipPayment";
+import { realizarPago } from "../../services/Pago";
 
 export function MembershipPayment() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [cliente, setCliente] = useState<Client | null>(null);
   const [subTotal, setSubTotal] = useState<number>(0);
@@ -54,8 +55,8 @@ export function MembershipPayment() {
   }, []);
 
   //---------------------------------------------------------------- GET BY DNI CLIENT
-  const buscarClientePorDNI = async (dni: string) => {
-    const clienteObtenido = await obtenerClientePorDNI(dni);
+  const buscarClientePorCode = async (dni: string) => {
+    const clienteObtenido = await obtenerClientePorCODE(dni);
     setCliente(clienteObtenido !== null ? clienteObtenido : null);
   };
 
@@ -107,19 +108,30 @@ export function MembershipPayment() {
         Observation: Observation,
       };
 
-      const response = await realizarPagoDeMembresia(data);
+      const response = await realizarPago(data);
+      if (response.success) {
+        Swal.fire({
+          title: "Correcto!",
+          text: response.msg,
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+        navigate("/area/client-membership/");
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: response.msg,
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
+      }
 
-      console.log("Respuesta del servidor:", response);
-      Swal.fire({
-        icon: "success",
-        title: "Pago realizado correctamente",
-        text: "El pago se ha registrado exitosamente.",
-      });
     } catch (error) {
       Swal.fire({
+        title: "Error!",
+        text: "Oppss, algo salio mal!",
         icon: "error",
-        title: "Error al realizar el pago",
-        text: "Hubo un problema al intentar realizar el pago.",
+        confirmButtonText: "Aceptar",
       });
     }
   };
@@ -169,8 +181,8 @@ export function MembershipPayment() {
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="DNI"
-                        onChange={(e) => buscarClientePorDNI(e.target.value)}
+                        placeholder="CODIGO"
+                        onChange={(e) => buscarClientePorCode(e.target.value)}
                       />
 
                       <button

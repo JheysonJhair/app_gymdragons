@@ -101,14 +101,14 @@ export async function eliminarCliente(
 }
 
 //---------------------------------------------------------------- GET BY DNI CLIENT
-export async function obtenerClientePorDNI(
-  dni: string
+export async function obtenerClientePorCODE(
+  code: string
 ): Promise<Client | null> {
   try {
-    const url = `${API_URL}dni/${dni}`;
+    const url = `${API_URL}getCode/${code}`;
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error("Error al obtener los datos del cliente por DNI");
+      throw new Error("Error al obtener los datos del cliente por CODE");
     }
     const responseData: ApiResponse = await response.json();
     if (!responseData.success || !responseData.data) {

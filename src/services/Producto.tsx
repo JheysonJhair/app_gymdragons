@@ -39,21 +39,30 @@ export async function addProduct(
   newProduct: Partial<newProduct>
 ): Promise<{ msg: string; success: boolean }> {
   try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newProduct),
-    });
-    if (!response.ok) {
-      throw new Error("Error al crear el producto");
+    const formData = new FormData();
+    formData.append('Name', newProduct.Name || '');
+    formData.append('Description', newProduct.Description || '');
+    if (newProduct.file) {
+      formData.append('file', newProduct.file);
     }
-    const responseData: { msg: string; success: boolean } =
-      await response.json();
+    formData.append('Price', newProduct.Price?.toString() || '');
+    formData.append('PurchasePrice', newProduct.PurchasePrice?.toString() || '');
+    formData.append('Type', newProduct.Type?.toString() || '');
+    formData.append('Stock', newProduct.Stock?.toString() || '');
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al crear el producto');
+    }
+
+    const responseData: { msg: string; success: boolean } = await response.json();
     return responseData;
   } catch (error) {
-    throw new Error("Error al crear el producto: " + error);
+    throw new Error('Error al crear el producto: ');
   }
 }
 

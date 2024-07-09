@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 export function NewProduct() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState<File | undefined>(undefined);
+
   const [price, setPrice] = useState(0);
   const [purchasePrice, setPurchasePrice] = useState(0);
   const [stock, setStock] = useState(0);
@@ -48,24 +49,24 @@ export function NewProduct() {
     }
   };
 
-  const handleImageUpload = (event: any) => {
-    const file = event.target.files?.[0];
-    const imagePreview = document.getElementById("image-preview");
+const handleImageUpload = (event: any) => {
+  const file = event.target.files?.[0];
+  const imagePreview = document.getElementById("image-preview");
 
-    if (file && imagePreview instanceof HTMLImageElement) {
-      const reader = new FileReader();
+  if (file && imagePreview instanceof HTMLImageElement) {
+    const reader = new FileReader();
 
-      reader.onload = function (e) {
-        if (typeof e.target?.result === "string") {
-          setImage(e.target.result);
-          imagePreview.src = e.target.result;
-          imagePreview.style.display = "block";
-        }
-      };
+    reader.onload = function (e) {
+      if (typeof e.target?.result === "string") {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = "block";
+      }
+    };
 
-      reader.readAsDataURL(file);
-    }
-  };
+    setImage(file); 
+    reader.readAsDataURL(file);
+  }
+};
 
   const handleSubmit = async () => {
     const nameError = validateField("Name", name);
@@ -108,7 +109,7 @@ export function NewProduct() {
     const newProduct = {
       Name: name,
       Description: description,
-      Image: image,
+      file: image, 
       Price: price,
       PurchasePrice: purchasePrice,
       Stock: stock,
