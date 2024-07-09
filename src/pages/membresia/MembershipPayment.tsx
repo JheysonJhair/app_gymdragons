@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Client } from "../../types/Client";
 import { Membership } from "../../types/Membership";
 import { obtenerClientePorCODE } from "../../services/Cliente";
 import { getMembresias } from "../../services/Membresias";
@@ -12,7 +11,7 @@ export function MembershipPayment() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [cliente, setCliente] = useState<Client | null>(null);
+  const [cliente, setCliente] = useState<any | null>(null);
   const [subTotal, setSubTotal] = useState<number>(0);
   const [descuento, setDescuento] = useState<number>(0);
   const [precio, setPrecio] = useState<number>(0);
@@ -54,10 +53,10 @@ export function MembershipPayment() {
     fetchMembresias();
   }, []);
 
-  //---------------------------------------------------------------- GET BY DNI CLIENT
+  //---------------------------------------------------------------- GET BY CODE CLIENT
   const buscarClientePorCode = async (dni: string) => {
     const clienteObtenido = await obtenerClientePorCODE(dni);
-    setCliente(clienteObtenido !== null ? clienteObtenido : null);
+    setCliente(clienteObtenido.data !== null ? clienteObtenido.data : null);
   };
 
   //---------------------------------------------------------------- GET BY ID CLIENT

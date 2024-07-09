@@ -100,48 +100,19 @@ export async function eliminarCliente(
   }
 }
 
-//---------------------------------------------------------------- GET BY DNI CLIENT
-export async function obtenerClientePorCODE(
-  code: string
-): Promise<Client | null> {
+//---------------------------------------------------------------- GET BY CODE CLIENT
+export const obtenerClientePorCODE = async (code: string): Promise<ApiResponse> => {
   try {
-    const url = `${API_URL}getCode/${code}`;
-    const response = await fetch(url);
+    const response = await fetch(`${API_URL}getCode/${code}`);
     if (!response.ok) {
-      throw new Error("Error al obtener los datos del cliente por CODE");
+      throw new Error('Error al obtener las asistencias.');
     }
-    const responseData: ApiResponse = await response.json();
-    if (!responseData.success || !responseData.data) {
-      throw new Error(
-        responseData.msg || "Error al obtener los datos del cliente"
-      );
-    }
-    return responseData.data;
+    const data: ApiResponse = await response.json();
+    return data;
   } catch (error) {
-    console.error("Error:", error);
-    return null;
+    console.error('Error fetching assistances:', error);
+    throw error;
   }
-}
+};
 
-//---------------------------------------------------------------- GET BY ID CLIENT
-export async function obtenerClientePorID(
-  clienteId: number
-): Promise<Client | null> {
-  try {
-    const url = `${API_URL}${clienteId}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos del cliente por ID");
-    }
-    const responseData: ApiResponse = await response.json();
-    if (!responseData.success || !responseData.data) {
-      throw new Error(
-        responseData.msg || "Error al obtener los datos del cliente"
-      );
-    }
-    return responseData.data;
-  } catch (error) {
-    console.error("Error:", error);
-    return null;
-  }
-}
+

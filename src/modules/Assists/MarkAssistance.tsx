@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
-  obtenerClientePorID,
-  obtenerClientePorDNI,
+  obtenerClientePorCODE,
 } from "../../services/Cliente";
 import { Client } from "../../types/Client";
 
@@ -10,14 +9,10 @@ export function MarkAssistance() {
   const [cliente, setCliente] = useState<Client | null>(null);
 
   const buscarClientePorDNI = async (dni: string) => {
-    const clienteObtenido = await obtenerClientePorDNI(dni);
-    setCliente(clienteObtenido !== null ? clienteObtenido : null);
+    const clienteObtenido = await obtenerClientePorCODE(dni);
+    setCliente(clienteObtenido.data !== null ? clienteObtenido.data : null);
   };
 
-  const buscarClientePorID = async (id: number) => {
-    const clienteObtenido = await obtenerClientePorID(id);
-    setCliente(clienteObtenido !== null ? clienteObtenido : null);
-  };
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -51,14 +46,6 @@ export function MarkAssistance() {
                         className="form-control"
                         placeholder="DNI"
                         onChange={(e) => buscarClientePorDNI(e.target.value)}
-                      />
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Código"
-                        onChange={(e) =>
-                          buscarClientePorID(parseInt(e.target.value))
-                        }
                       />
                       <button
                         className="btn btn-outline-secondary"
