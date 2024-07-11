@@ -7,12 +7,18 @@ import { crearCongelarDias } from "../../services/Congelar";
 
 export function ClientMembership() {
   const [detallePago, setDetallePago] = useState<any[]>([]);
+  const [client, setClient] = useState<any>();
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [days, setDays] = useState("");
+  const [date, setDate] = useState("");
 
+  const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   //---------------------------------------------------------------- GET BY CODE CLIENT
   const buscarClientePorCode = async (code: string) => {
     if (code.length === 4) {
       try {
         const cliente = await getPagoCompletoCode(code);
+        console.log(cliente);
         if (cliente.success && cliente.success) {
           Swal.fire({
             title: "Correcto!",
@@ -29,7 +35,22 @@ export function ClientMembership() {
           });
         }
 
-        setDetallePago(cliente.data);
+        setClient(cliente.data);
+        setDetallePago(cliente.data.Payment);
+        // Verificar si faltan menos de 10 días para finalizar la membresía
+        if (cliente.data.Payment && cliente.data.Payment.length > 0) {
+          const endDate = new Date(cliente.data.Payment[0].EndDate);
+          const today = new Date();
+          const differenceInDays = Math.floor(
+            (endDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
+          );
+
+          if (differenceInDays < 10) {
+            setShowMembershipAlert(true);
+          } else {
+            setShowMembershipAlert(false);
+          }
+        }
       } catch (error) {
         setDetallePago([]);
         Swal.fire({
@@ -42,10 +63,6 @@ export function ClientMembership() {
     }
   };
 
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [days, setDays] = useState("");
-  const [date, setDate] = useState("");
-
   const closeModal = () => {
     setModalIsOpen(false);
   };
@@ -53,7 +70,8 @@ export function ClientMembership() {
   const saveChanges = async () => {
     if (days && date) {
       try {
-        const idPayment = detallePago[0]?.idPayment;
+        const lastIndex = detallePago.length - 1;
+        const idPayment = detallePago[lastIndex]?.PaymentId;
         const response = await crearCongelarDias({
           idPayment: idPayment,
           NumberOfDay: parseInt(days),
@@ -93,6 +111,15 @@ export function ClientMembership() {
         confirmButtonText: "Aceptar",
       });
     }
+  };
+  const formatDate = (isoDate: any) => {
+    const date = new Date(isoDate);
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString();
+
+    return `${day}/${month}/${year}`;
   };
 
   return (
@@ -138,34 +165,148 @@ export function ClientMembership() {
                   </div>
                 </div>
               </div>
-              <div className="mt-3 alert alert-dark border-0 bg-dark alert-dismissible fade show py-2">
-                <div className="d-flex align-items-center">
-                  <div className="font-35 text-white">
-                    <i className="bx bx-bell" />
-                  </div>
-                  <div className="ms-3">
-                    <h6 className="mb-0 text-white">Membresia</h6>
-                    <div className="text-white">
-                      Faltan menos de 10 días para finalizar!
+              <div className="row">
+                <div className="col-12 col-lg-4 d-flex">
+                  <div className="col-lg-12">
+                    <div className="card-body">
+                      {client && client.FirstName ? (
+                        <>
+                          <div className="d-flex flex-column align-items-center text-center">
+                            <img
+                              src="../../assets/images/avatars/avatar-1.png"
+                              alt="Admin"
+                              className="rounded-circle p-1 bg-danger"
+                              width={110}
+                            />
+                            <div className="mt-3">
+                              <h4>
+                                {" "}
+                                {client.FirstName ||
+                                  "Nombre no disponible"}{" "}
+                                {client.LastName || "Nombre no disponible"}
+                              </h4>
+                            </div>
+                          </div>
+                          <hr className="my-3" />
+                          <ul className="list-group list-group-flush">
+                            <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                              <h6 className="mb-0">Teléfono</h6>
+                              <span className="text-secondary">
+                                {client.PhoneNumber || "No disponible"}
+                              </span>
+                            </li>
+                            <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                              <h6 className="mb-0">Sexo</h6>
+                              <span className="text-secondary">
+                                {client.Gender || "No disponible"}
+                              </span>
+                            </li>
+                            <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                              <h6 className="mb-0">Dni</h6>
+                              <span className="text-secondary">
+                                {client.Document || "No disponible"}
+                              </span>
+                            </li>
+                          </ul>
+                        </>
+                      ) : (
+                        <p>No se encontraron detalles del cliente.</p>
+                      )}
                     </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  className="btn-close"
-                  data-bs-dismiss="alert"
-                  aria-label="Close"
-                />
+                <div className="col-12 col-lg-8">
+                  {detallePago.length !== 0 && (
+                    <>
+                      {showMembershipAlert && (
+                        <div className="mt-3 alert alert-dark border-0 bg-dark alert-dismissible fade show py-2">
+                          <div className="d-flex align-items-center">
+                            <div className="font-35 text-white">
+                              <i className="bx bx-bell" />
+                            </div>
+                            <div className="ms-3">
+                              <h6 className="mb-0 text-white">Membresía</h6>
+                              <div className="text-white">
+                                Faltan menos de 10 días para finalizar!
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  <div className="d-flex flex-column align-items-start mb-3">
+                    <h5 className="mt-4 card-title">Vouchers</h5>
+                    <hr className="w-100" />
+                  </div>
+
+                  <table className="table mb-0">
+                    <thead className="table-dark">
+                      <tr>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Monto</th>
+                        <th scope="col">Comprobante</th>
+                        <th scope="col">Fpago</th>
+                        <th scope="col">Creador</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detallePago.length === 0 ? (
+                        <tr>
+                          <td className="">No tiene</td>
+                          <td className="">DD/MM/YY</td>
+                          <td className="">0.0</td>
+                          <td className="">Rec-xxxxxx</td>
+                          <td className="">No establecido</td>
+                          <td className="">No tiene</td>
+                        </tr>
+                      ) : (
+                        detallePago.map((detallePago) => (
+                          <tr key={detallePago.PaymentId}>
+                            <td
+                              className={
+                                detallePago.Due === 0
+                                  ? "text-success"
+                                  : detallePago.Due > 0
+                                  ? "text-warning"
+                                  : ""
+                              }
+                            >
+                              {detallePago.Due === 0
+                                ? "Pagado"
+                                : detallePago.Due > 0
+                                ? "Pendiente"
+                                : ""}
+                            </td>
+                            <td>{formatDate(detallePago.DatePayment)}</td>
+                            <td>{detallePago.PrePaid}</td>
+                            <td>{detallePago.PaymentReceipt}</td>
+                            <td>{detallePago.PaymentType}</td>
+                            <td>NO TIENE</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="d-flex flex-column align-items-start mb-3">
+                <hr className="w-100" />
               </div>
               <div className="mb-4 mt-2 d-flex align-items-center justify-content-between">
                 <h5 className="card-title mb-0">
                   Detalles de plan de membresía
                 </h5>
                 {detallePago.length !== 0 && (
-                  <Button
-                    variant="primary"
-                    onClick={() => setModalIsOpen(true)}
-                  >
+                  <Button variant="danger" onClick={() => setModalIsOpen(true)}>
                     Congelar días
                   </Button>
                 )}
@@ -196,59 +337,31 @@ export function ClientMembership() {
                         <td className="">No tiene</td>
                       </tr>
                     ) : (
-                      detallePago.map((detallePago) => (
-                        <tr key={detallePago.IdAttendance}>
-                          <td>{detallePago.Promocion}</td>
-                          <td>{detallePago.Insccripcion}</td>
-                          <td>{detallePago.fechainicio}</td>
-                          <td>{detallePago.fechafin}</td>
-                          <td>{detallePago.precio}</td>
-                          <td>{detallePago.congelamiento}</td>
-                          <td>{detallePago.responsable}</td>
-                        </tr>
-                      ))
+                      <tr key={detallePago[detallePago.length - 1].PaymentId}>
+                        <td>FALTA</td>
+                        <td>
+                          {formatDate(
+                            detallePago[detallePago.length - 1].DatePayment
+                          )}
+                        </td>
+                        <td>
+                          {formatDate(
+                            detallePago[detallePago.length - 1].StartDate
+                          )}
+                        </td>
+                        <td>
+                          {formatDate(
+                            detallePago[detallePago.length - 1].EndDate
+                          )}
+                        </td>
+                        <td>{detallePago[detallePago.length - 1].PrePaid}</td>
+                        <td>NO TIENE</td>
+                        <td>NO TIENE</td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
               </div>
-              <h5 className="card-title">Vouchers</h5>
-              <hr />
-
-              <table className="table mb-0">
-                <thead className="table-dark">
-                  <tr>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Fecha</th>
-                    <th scope="col">Monto</th>
-                    <th scope="col">Comprobante</th>
-                    <th scope="col">Fpago</th>
-                    <th scope="col">Creador</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detallePago.length === 0 ? (
-                    <tr>
-                      <td className="">No tiene</td>
-                      <td className="">DD/MM/YY</td>
-                      <td className="">0.0</td>
-                      <td className="">Rec-xxxxxx</td>
-                      <td className="">No establecido</td>
-                      <td className="">No tiene</td>
-                    </tr>
-                  ) : (
-                    detallePago.map((detallePago) => (
-                      <tr key={detallePago.IdAttendance}>
-                        <td>{detallePago.estado}</td>
-                        <td>{detallePago.fecha}</td>
-                        <td>{detallePago.monto}</td>
-                        <td>{detallePago.comprobante}</td>
-                        <td>{detallePago.formapago}</td>
-                        <td>{detallePago.creador}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -289,7 +402,7 @@ export function ClientMembership() {
           <Button variant="secondary" onClick={closeModal}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={saveChanges}>
+          <Button variant="danger" onClick={saveChanges}>
             Guardar cambios
           </Button>
         </Modal.Footer>

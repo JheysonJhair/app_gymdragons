@@ -1,7 +1,7 @@
 import { Payment } from "../types/Payment";
 
 const API_URL = "https://zonafitbackend-production.up.railway.app/api/payment";
-const API_URL2 = 'https://zonafitbackend-production.up.railway.app/api/attendance/';
+const API_URL2 = 'https://zonafitbackend-production.up.railway.app/api/client/';
 interface ApiResponse {
   msg: string;
   success: boolean;
@@ -12,6 +12,49 @@ interface ApiResponseGet {
   success: boolean;
   data: any[];
 }
+interface ApiResponseClient {
+  msg: string;
+  success: boolean;
+  data: {
+    IdClient: number;
+    Code: number;
+    FirstName: string;
+    LastName: string;
+    PhoneNumber: string;
+    Document: string;
+    DocumentType: string;
+    MaritalStatus: string;
+    Gender: string;
+    Address: string;
+    Whatsapp: string;
+    Mail: string;
+    BirthDate: string;
+    Note: string;
+    Image: string;
+    Created: string;
+    Payment: Payment[];
+    Attendance: {
+      IdAttendance: number;
+      AttendanceDate: string;
+    }[];
+  };
+}
+
+export const getPagoCompletoCode = async (code: string): Promise<ApiResponseClient> => {
+  try {
+    const response = await fetch(`${API_URL2}getCode/${code}`);
+    if (!response.ok) {
+      throw new Error("Error al obtener el cliente.");
+    }
+    const data: ApiResponseClient = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching client data:", error);
+    throw error;
+  }
+};
+
+
 //---------------------------------------------------------------- POST PAYMENT
 export async function realizarPago(pago: Payment): Promise<ApiResponse> {
   try {
@@ -33,20 +76,4 @@ export async function realizarPago(pago: Payment): Promise<ApiResponse> {
 }
 
 //---------------------------------------------------------------- GET PAYMENT CODE
-export const getPagoCompletoCode = async (
-  code: string
-): Promise<ApiResponseGet> => {
-  try {
-    const response = await fetch(`${API_URL2}allByCode/${code}`);
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las asistencias.");
-    }
-
-    const data: ApiResponseGet = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching assistances:", error);
-    throw error;
-  }
-};

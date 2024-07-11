@@ -28,7 +28,7 @@ export function Assists() {
             confirmButtonText: "Aceptar",
           });
         }
-
+        console.log(cliente)
         setAsistencias(cliente.data);
         setCliente(clienteObtenido.data !== null ? clienteObtenido.data : null);
       } catch (error) {
