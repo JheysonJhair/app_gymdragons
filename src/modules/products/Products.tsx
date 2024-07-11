@@ -3,12 +3,13 @@ import { Product } from "../../types/Product";
 import { fetchProducts } from "../../services/Producto";
 import { NavLink } from "react-router-dom";
 import CartIcon from "./components/CartIcon";
-import './Products.css'; 
+import "./Products.css";
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [cart, setCart] = useState<Product[]>([]);
+  const [cartUpdateTrigger, setCartUpdateTrigger] = useState(false);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -21,7 +22,7 @@ export function Products() {
     };
 
     loadProducts();
-  }, []);
+  }, [cartUpdateTrigger]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -31,14 +32,19 @@ export function Products() {
     setCart([...cart, product]);
   };
 
+  const handleVentaExitosa = () => {
+    setCart([]);
+    setCartUpdateTrigger((prev) => !prev);
+  };
+
   const filteredProducts = products.filter((product) =>
     product.Name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div style={{marginTop:"110px"}} className="page-wrapper">
+    <div style={{ marginTop: "110px" }} className="page-wrapper">
       <div className="cart-icon-container">
-        <CartIcon cartItems={cart} />
+      <CartIcon cartItems={cart} onVentaExitosa={handleVentaExitosa} />
       </div>
       <div className="page-content">
         <div className="row">

@@ -132,57 +132,7 @@ function AppLayout() {
                 </li>
               </ul>
             </li>
-            {/* <li>
-              <a className="has-arrow" href="#">
-                <div className="parent-icon">
-                  <i className="bx bx-archive-in" />
-                </div>
-                <div className="menu-title">Inventario</div>
-              </a>
-
-              <ul>
-                <li>
-                  {" "}
-                  <a href="content-grid-system.html">
-                    <i className="bx bx-radio-circle" />
-                    Opcion 1
-                  </a>
-                </li>
-                <li>
-                  {" "}
-                  <a href="content-typography.html">
-                    <i className="bx bx-radio-circle" />
-                    Opcion 2
-                  </a>
-                </li>
-              </ul>
-            </li> */}
             <li className="menu-label">Plataforma</li>
-            {/* <li>
-              <a className="has-arrow" href="#">
-                <div className="parent-icon">
-                  <i className="bx bx-package" />
-                </div>
-                <div className="menu-title">Caja</div>
-              </a>
-
-              <ul>
-                <li>
-                  {" "}
-                  <a href="form-elements.html">
-                    <i className="bx bx-radio-circle" />
-                    Detalle caja
-                  </a>
-                </li>
-                <li>
-                  {" "}
-                  <a href="form-input-group.html">
-                    <i className="bx bx-radio-circle" />
-                    Gastos caja
-                  </a>
-                </li>
-              </ul>
-            </li> */}
             <li>
               <a className="has-arrow" href="#">
                 <div className="parent-icon">
@@ -255,7 +205,7 @@ function AppLayout() {
                     <div className="parent-icon">
                       <i className="bx bx-table" />
                     </div>
-                    <div className="menu-title">Tablas</div>
+                    <div className="menu-title">Inventario</div>
                   </NavLink>
                 </li>
               </>

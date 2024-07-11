@@ -1,5 +1,6 @@
 import { Product, newProduct } from "../types/Product";
 
+const API_URL2 = "https://zonafitbackend-production.up.railway.app/api/payment/insertCart";
 const API_URL = "https://zonafitbackend-production.up.railway.app/api/product";
 
 interface ApiResponseAll {
@@ -128,5 +129,48 @@ export async function deleteProduct(productId: string): Promise<{ msg: string; s
     return responseData;
   } catch (error) {
     throw new Error(`Error al eliminar el producto`);
+  }
+}
+
+
+//---------------------------------------------------------------- CART PRODUCT
+
+export async function realizarVenta(totalPrice: number, cartItems: Product[]): Promise<{ msg: string; success: boolean }> {
+  const productsData = new Map<number, number>(); 
+
+  cartItems.forEach(item => {
+    const productId = item.IdProduct;
+    const currentCount = productsData.get(productId) || 0;
+    productsData.set(productId, currentCount + 1); 
+  });
+
+  const productsIds = Array.from(productsData.keys());
+  const stocks = Array.from(productsData.values());
+
+  const data = {
+    Price: totalPrice,
+    Products: productsIds,
+    Stocks: stocks
+  };
+
+  console.log(data);
+
+  try {
+    const response = await fetch(API_URL2, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al realizar la venta");
+    }
+
+    const responseData: { msg: string; success: boolean } = await response.json();
+    return responseData;
+  } catch (error) {
+    throw new Error("Error al realizar la venta: " );
   }
 }

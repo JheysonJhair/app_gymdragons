@@ -7,6 +7,7 @@ export interface Product {
   Type?: number;
   PurchasePrice?: number;
   file: File;
+  Image?: string
 }
 export type newProduct = {
   Name: string;
@@ -16,6 +17,7 @@ export type newProduct = {
   PurchasePrice: number;
   Type: number;
   Stock:number;
+  Image?: string
 };
 
 export type ErrorMessages = {
