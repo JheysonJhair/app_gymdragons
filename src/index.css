@@ -24,3 +24,7 @@
   pointer-events: none;
   opacity: 0.5;
 }
+.table-wrapper {
+  max-height: 490px;
+  overflow-y: auto;
+}

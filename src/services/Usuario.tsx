@@ -55,7 +55,7 @@ export async function actualizarUsuario(
 ): Promise<{ msg: string; success: boolean }> {
   try {
     const response = await fetch(`${API_URL}/update`, {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },

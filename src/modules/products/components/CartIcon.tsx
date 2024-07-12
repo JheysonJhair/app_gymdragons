@@ -5,6 +5,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { realizarVenta } from "../../../services/Producto";
 import Swal from "sweetalert2";
+import { useAuth } from "../../../hooks/AuthContext";
 
 interface CartIconProps {
   cartItems: Product[];
@@ -12,9 +13,11 @@ interface CartIconProps {
 }
 
 const CartIcon: React.FC<CartIconProps> = ({ cartItems, onVentaExitosa }) => {
+  const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [ventaExitosa, setVentaExitosa] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [tipoPago, setTipoPago] = useState<string>("Yape");
 
   useEffect(() => {
     const totalPrice = cartItems.reduce((total, item) => total + item.Price, 0);
@@ -38,9 +41,23 @@ const CartIcon: React.FC<CartIconProps> = ({ cartItems, onVentaExitosa }) => {
       });
       return;
     }
+    if (tipoPago == "") {
+      Swal.fire({
+        title: "Error!",
+        text: "Ingrese el tipo de pago",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+      return;
+    }
 
     try {
-      const response = await realizarVenta(totalPrice, cartItems);
+      const response = await realizarVenta(
+        totalPrice,
+        tipoPago,
+        user?.IdUser || 0,
+        cartItems
+      );
       if (response.success) {
         Swal.fire({
           title: "Correcto!",
@@ -112,6 +129,21 @@ const CartIcon: React.FC<CartIconProps> = ({ cartItems, onVentaExitosa }) => {
           </ul>
           <div className="cart-total mt-3">
             <strong>Total: s/{totalPrice.toFixed(2)}</strong>
+          </div>
+          <div className="mt-3">
+            <label htmlFor="paymentType" className="form-label">
+              Tipo de pago
+            </label>
+            <select
+              className="form-select"
+              id="paymentType"
+              value={tipoPago}
+              onChange={(e) => setTipoPago(e.target.value)}
+            >
+              <option value="Yape">Yape</option>
+              <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+              <option value="Efectivo">Efectivo</option>
+            </select>
           </div>
           {ventaExitosa && (
             <div className="alert alert-success mt-3" role="alert">

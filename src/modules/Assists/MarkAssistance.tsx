@@ -2,7 +2,7 @@ import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Swal from "sweetalert2";
-import { getPagoCompletoCode } from "../../services/Pago";
+import { getPagoCompletoCode, repairPago } from "../../services/Pago";
 import { crearAsistencia } from "../../services/Asistencia";
 import { useAuth } from "../../hooks/AuthContext";
 
@@ -13,6 +13,8 @@ export function MarkAssistance() {
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   const [days, setDays] = useState("");
   const { user } = useAuth();
+  const [selectedPaymentType, setSelectedPaymentType] = useState("Yape");
+
   const buscarClientePorCode = async (code: string) => {
     if (code.length === 4) {
       try {
@@ -66,7 +68,55 @@ export function MarkAssistance() {
     setModalIsOpen(false);
   };
 
-  const saveChanges = async () => {};
+  const saveChanges = async () => {
+    try {
+      if (!days.trim()) {
+        Swal.fire({
+          title: "Error!",
+          text: "Por favor ingresa el monto a pagar.",
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
+        return;
+      }
+  
+      const paymentData = {
+        IdClient: client.IdClient, 
+        IdUser: user?.IdUser, 
+        Amount: Number(days),
+        TypePayment: selectedPaymentType,
+      };
+      console.log(paymentData);
+      const response = await repairPago(paymentData);
+  
+      if (response.success) {
+        Swal.fire({
+          title: "Éxito!",
+          text: response.msg,
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: response.msg,
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "Oppss, algo salió mal!",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+    }
+  };
+  
+
+
+  
   const formatDate = (isoDate: any) => {
     const date = new Date(isoDate);
 
@@ -79,6 +129,7 @@ export function MarkAssistance() {
   const marcarAsistenciaCliente = async () => {
     try {
       const response = await crearAsistencia(client?.Code, user?.IdUser || 0);
+      console.log(response.success);
       if (response.success) {
         Swal.fire({
           title: "Éxito!",
@@ -148,7 +199,7 @@ export function MarkAssistance() {
                     </div>
                   </div>
                   <div className="col-sm-6">
-                    {detallePago.length !== 0 && (
+                  {detallePago.length !== 0 && (
                       <Button
                         variant="danger"
                         onClick={() => marcarAsistenciaCliente()}
@@ -406,6 +457,21 @@ export function MarkAssistance() {
               onChange={(e) => setDays(e.target.value)}
               required
             />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="paymentType" className="form-label">
+              Tipo de pago
+            </label>
+            <select
+              className="form-select"
+              id="paymentType"
+              value={selectedPaymentType}
+              onChange={(e) => setSelectedPaymentType(e.target.value)}
+            >
+              <option value="Yape">Yape</option>
+              <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+              <option value="Efectivo">Efectivo</option>
+            </select>
           </div>
         </Modal.Body>
         <Modal.Footer>

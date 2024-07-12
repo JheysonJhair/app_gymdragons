@@ -5,6 +5,7 @@ interface ApiResponse {
   msg: string;
   success: boolean;
   data: any[];
+  dataClient: any;
 }
 
 //---------------------------------------------------------------- GET ASSISTS CODE

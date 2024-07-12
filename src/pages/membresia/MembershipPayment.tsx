@@ -15,7 +15,6 @@ export function MembershipPayment() {
   const [subTotal, setSubTotal] = useState<number>(0);
   const [descuento, setDescuento] = useState<number>(0);
   const [precio, setPrecio] = useState<number>(0);
-  const [diasCongelados] = useState<number>(0);
   const [aCuenta, setACuenta] = useState(0);
   const [vuelto, setVuelto] = useState(0);
   const [debe, setDebe] = useState(0);
@@ -25,6 +24,7 @@ export function MembershipPayment() {
   const [fechaPago, setFechaPago] = useState<string>("");
   const [formaPago, setFormaPago] = useState("");
   const [Observation, setObservation] = useState("");
+  const [reciboPago, setReciboPago] = useState("");
   const [selectedMembershipId, setSelectedMembershipId] = useState<
     number | null
   >(null);
@@ -43,15 +43,20 @@ export function MembershipPayment() {
     setVuelto(calculatedVuelto);
   }, [subTotal, descuento, aCuenta]);
 
-  //---------------------------------------------------------------- GET MEMBRESHIP
-  useEffect(() => {
-    const fetchMembresias = async () => {
+//---------------------------------------------------------------- GET MEMBRESHIP
+useEffect(() => {
+  const fetchMembresias = async () => {
+    try {
       const data = await getMembresias();
-      setMembresias(data);
-    };
+      const membresiasHabilitadas = data.filter(m => m.Enabled === true);
+      setMembresias(membresiasHabilitadas);
+    } catch (error) {
+      console.error("Error al obtener las membresías:", error);
+    }
+  };
 
-    fetchMembresias();
-  }, []);
+  fetchMembresias();
+}, []);
 
   //---------------------------------------------------------------- GET BY CODE CLIENT
   const buscarClientePorCode = async (dni: string) => {
@@ -79,7 +84,7 @@ export function MembershipPayment() {
       return;
     }
 
-    if (!aCuenta || !fechaPago || !formaPago) {
+    if (!aCuenta || !fechaPago || !formaPago || !reciboPago) {
       Swal.fire({
         icon: "error",
         title: "Campos vacios!",
@@ -103,7 +108,7 @@ export function MembershipPayment() {
         Due: debe,
         PrePaid: total,
         PaymentType: formaPago,
-        PaymentReceipt: "Rec-0000012",
+        PaymentReceipt: reciboPago,
         Observation: Observation,
       };
 
@@ -124,7 +129,6 @@ export function MembershipPayment() {
           confirmButtonText: "Aceptar",
         });
       }
-
     } catch (error) {
       Swal.fire({
         title: "Error!",
@@ -263,28 +267,6 @@ export function MembershipPayment() {
                         </div>
                       </div>
                     </div>
-                    <div className="row mb-3">
-                      <label
-                        htmlFor="input04"
-                        className="col-sm-3 col-form-label"
-                      >
-                        Direccion
-                      </label>
-                      <div className="col-sm-9">
-                        <div className="input-group">
-                          <span className="input-group-text">
-                            <i className="bx bx-map" />
-                          </span>
-                          <input
-                            type="text"
-                            className="form-control"
-                            id="input04"
-                            placeholder="Dirección"
-                            value={cliente?.Address || ""}
-                          />
-                        </div>
-                      </div>
-                    </div>
                   </div>
                   <div className="col-sm-4">
                     <div className="d-flex flex-column align-items-center text-center">
@@ -292,31 +274,8 @@ export function MembershipPayment() {
                         src="../../assets/images/avatars/avatar-1.png"
                         alt="Admin"
                         className=" p-1 bg-danger"
-                        width={180}
+                        width={125}
                       />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row mb-3">
-                  <label htmlFor="input05" className="col-sm-4 col-form-label">
-                    Estado civil
-                  </label>
-                  <div className="col-sm-8">
-                    <div className="input-group">
-                      <span className="input-group-text">
-                        <i className="bx bx-heart" />
-                      </span>
-                      <select
-                        className="form-select"
-                        id="input05"
-                        value={cliente?.MaritalStatus || ""}
-                      >
-                        <option>Seleccionar estado civil</option>
-                        <option value="Soltero">Soltero</option>
-                        <option value="Casado">Casado</option>
-                        <option value="Viudo">Viudo</option>
-                      </select>
                     </div>
                   </div>
                 </div>
@@ -342,25 +301,6 @@ export function MembershipPayment() {
                   </div>
                 </div>
 
-                <div className="row mb-3">
-                  <label htmlFor="input07" className="col-sm-4 col-form-label">
-                    Correo Electrónico
-                  </label>
-                  <div className="col-sm-8">
-                    <div className="input-group">
-                      <span className="input-group-text">
-                        <i className="bx bx-envelope" />
-                      </span>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="input07"
-                        placeholder="Email"
-                        value={cliente?.Mail || ""}
-                      />
-                    </div>
-                  </div>
-                </div>
                 <div className="row mb-3">
                   <label htmlFor="input08" className="col-sm-4 col-form-label">
                     Telefono
@@ -550,44 +490,6 @@ export function MembershipPayment() {
                     </div>
                   </div>
                 </div>
-                <div className="row mb-3">
-                  <label htmlFor="input50" className="col-sm-6 col-form-label">
-                    Dias congelados
-                  </label>
-                  <div className="col-sm-6">
-                    <div className="input-group">
-                      <span className="input-group-text">
-                        <i className="bx bx-pause-circle" />
-                      </span>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="input50"
-                        value={diasCongelados}
-                        placeholder="#00"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="row mb-3">
-                  <label htmlFor="input50" className="col-sm-6 col-form-label">
-                    Dias congelados Disponibles
-                  </label>
-                  <div className="col-sm-6">
-                    <div className="input-group">
-                      <span className="input-group-text">
-                        <i className="bx bx-check-circle" />
-                      </span>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="input50"
-                        placeholder="#00"
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -735,6 +637,25 @@ export function MembershipPayment() {
                     </div>
                   </div>
                 </div>
+                <div className="row mb-3">
+                  <label htmlFor="input50" className="col-sm-4 col-form-label">
+                    Recibo de pago
+                  </label>
+                  <div className="col-sm-8">
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bx bx-dollar" />
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="input50"
+                        placeholder="Número de recibo"
+                        onChange={(e) => setReciboPago(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
                 <div className="input-group">
                   <span className="input-group-text">Observaciones*</span>
                   <textarea
@@ -745,7 +666,7 @@ export function MembershipPayment() {
                   />
                 </div>
                 <div className="row mt-4">
-                  <div className="col">{/* Contenido */}</div>
+                  <div className="col"></div>
                   <div className="col-auto ml-auto">
                     <button
                       className="btn btn-danger btn-block"

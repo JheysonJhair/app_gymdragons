@@ -2,15 +2,11 @@ import { Payment } from "../types/Payment";
 
 const API_URL = "https://zonafitbackend-production.up.railway.app/api/payment";
 const API_URL2 = 'https://zonafitbackend-production.up.railway.app/api/client/';
+const API_URL3 = "https://zonafitbackend-production.up.railway.app/api/payment/repairPayment";
 interface ApiResponse {
   msg: string;
   success: boolean;
   data: Payment;
-}
-interface ApiResponseGet {
-  msg: string;
-  success: boolean;
-  data: any[];
 }
 interface ApiResponseClient {
   msg: string;
@@ -75,5 +71,31 @@ export async function realizarPago(pago: Payment): Promise<ApiResponse> {
   }
 }
 
-//---------------------------------------------------------------- GET PAYMENT CODE
+//---------------------------------------------------------------- POST REPAIR PAYMENT
 
+
+interface ApiResponse {
+  msg: string;
+  success: boolean;
+}
+
+export async function repairPago(pago: any): Promise<ApiResponse> {
+  try {
+    const response = await fetch(API_URL3, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(pago),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al realizar el pago");
+    }
+
+    const responseData: ApiResponse = await response.json();
+    return responseData;
+  } catch (error) {
+    throw new Error("Error al realizar el pago: " + error);
+  }
+}

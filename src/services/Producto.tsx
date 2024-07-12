@@ -135,7 +135,7 @@ export async function deleteProduct(productId: string): Promise<{ msg: string; s
 
 //---------------------------------------------------------------- CART PRODUCT
 
-export async function realizarVenta(totalPrice: number, cartItems: Product[]): Promise<{ msg: string; success: boolean }> {
+export async function realizarVenta(totalPrice: number, tipoPago: string, idUsuario: number, cartItems: Product[]): Promise<{ msg: string; success: boolean }> {
   const productsData = new Map<number, number>(); 
 
   cartItems.forEach(item => {
@@ -149,8 +149,10 @@ export async function realizarVenta(totalPrice: number, cartItems: Product[]): P
 
   const data = {
     Price: totalPrice,
+    TypePayment: tipoPago,
     Products: productsIds,
-    Stocks: stocks
+    Stocks: stocks,
+    IdUser: idUsuario
   };
 
   console.log(data);
@@ -171,6 +173,6 @@ export async function realizarVenta(totalPrice: number, cartItems: Product[]): P
     const responseData: { msg: string; success: boolean } = await response.json();
     return responseData;
   } catch (error) {
-    throw new Error("Error al realizar la venta: " );
+    throw new Error("Error al realizar la venta: ");
   }
 }

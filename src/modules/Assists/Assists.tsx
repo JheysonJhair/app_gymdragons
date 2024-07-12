@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { obtenerClientePorCODE } from "../../services/Cliente";
 import { fetchAssistancesByCode } from "../../services/Asistencia";
 import Swal from "sweetalert2";
 
@@ -10,40 +9,51 @@ export function Assists() {
   //---------------------------------------------------------------- GET BY CODE CLIENT
   const buscarClientePorCode = async (code: string) => {
     if (code.length === 4) {
-      try {
-        const clienteObtenido = await obtenerClientePorCODE(code);
-        const cliente = await fetchAssistancesByCode(code);   
-        if (cliente.success && clienteObtenido.success) {
-          Swal.fire({
-            title: "Correcto!",
-            text: clienteObtenido.msg,
-            icon: "success",
-            confirmButtonText: "Aceptar",
-          });
-        } else {
+      const isNumeric = /^[0-9]{4}$/;
+      setCliente(null);
+      setAsistencias([]);
+      if (isNumeric.test(code)) {
+        try {
+          const cliente = await fetchAssistancesByCode(code);
+
+          if (cliente.success) {
+            Swal.fire({
+              title: "Correcto!",
+              text: cliente.msg,
+              icon: "success",
+              confirmButtonText: "Aceptar",
+            });
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: cliente.msg,
+              icon: "error",
+              confirmButtonText: "Aceptar",
+            });
+            return;
+          }
+
+          setAsistencias(cliente.data);
+          setCliente(cliente.dataClient !== null ? cliente.dataClient : null);
+        } catch (error) {
           Swal.fire({
             title: "Error!",
-            text: clienteObtenido.msg,
+            text: "Oppss, algo salio mal!",
             icon: "error",
             confirmButtonText: "Aceptar",
           });
         }
-        console.log(cliente)
-        setAsistencias(cliente.data);
-        setCliente(clienteObtenido.data !== null ? clienteObtenido.data : null);
-      } catch (error) {
-        setCliente(null);
-        setAsistencias([]);
+      } else {
         Swal.fire({
           title: "Error!",
-          text: "Oppss, algo salio mal!",
+          text: "El código debe ser numérico y de 4 dígitos.",
           icon: "error",
           confirmButtonText: "Aceptar",
         });
       }
     }
   };
-  
+
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -269,49 +279,46 @@ export function Assists() {
           </div>
           <div className="col-12 col-lg-6 ">
             <div className="card radius-10">
-              <table className="table mb-0 ">
-                <thead className="table-dark">
-                  <tr>
-                    <th scope="col">Asistencia</th>
-                    <th scope="col">Hora</th>
-                    <th scope="col">Día</th>
-                    <th scope="col">Responsable</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {asistencias.length === 0 ? (
+              <div className="table-wrapper">
+                <table className="table mb-0">
+                  <thead className="table-dark">
                     <tr>
-                      <td  className="">
-                        DD/MM/YY
-                      </td>
-                      <td  className="">
-                        00:00:00
-                      </td>
-                      <td  className="">
-                        No hay
-                      </td>
-                      <td  className="">
-                        No se encontro
-                      </td>
+                      <th scope="col">Asistencia</th>
+                      <th scope="col">Hora</th>
+                      <th scope="col">Día</th>
+                      <th scope="col">Responsable</th>
                     </tr>
-                  ) : (
-                    asistencias.map((asistencia) => (
-                      <tr key={asistencia.IdAttendance}>
-                        <td>
-                          {new Date(asistencia.AttendanceDate).toLocaleDateString()}
-                        </td>
-                        <td>
-                          {new Date(asistencia.AttendanceDate).toLocaleTimeString()}
-                        </td>
-                        <td>
-                          {new Date(asistencia.AttendanceDate).toLocaleDateString("es-ES", { weekday: 'long' })}
-                        </td>
-                        <td>{asistencia.UserName}</td>
+                  </thead>
+                  <tbody>
+                    {asistencias.length === 0 ? (
+                      <tr>
+                        <td colSpan={4}>No hay asistencias encontradas.</td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      asistencias.map((asistencia) => (
+                        <tr key={asistencia.IdAttendance}>
+                          <td>
+                            {new Date(
+                              asistencia.AttendanceDate
+                            ).toLocaleDateString()}
+                          </td>
+                          <td>
+                            {new Date(asistencia.AttendanceDate)
+                              .toLocaleTimeString()
+                              .replace(/^./, (str) => str.toUpperCase())}
+                          </td>
+                          <td>
+                            {new Date(asistencia.AttendanceDate)
+                              .toLocaleDateString("es-ES", { weekday: "long" })
+                              .replace(/^./, (str) => str.toUpperCase())}
+                          </td>
+                          <td>{asistencia.UserName}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

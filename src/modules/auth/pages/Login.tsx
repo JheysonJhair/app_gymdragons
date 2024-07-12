@@ -22,7 +22,6 @@ export default function Login() {
         UserName: username,
         Password: password,
       });
-      console.log(response.data.Access)
       if (!response.success) {
         Swal.fire({
           title: "Error!",
@@ -31,25 +30,16 @@ export default function Login() {
           confirmButtonText: "Aceptar",
         });
       } else {
-        if(response.data.Access){
-          if (response.data.RoleId == 1 || response.data.RoleId == 2) {
-            Swal.fire({
-              position: "top-end",
-              icon: "success",
-              title: `Bienvenido ${response.data.FirstName}`,
-              showConfirmButton: false,
-              timer: 1500,
-            });
-            setUser(response.data);
-            navigate("/");
-          }
-        }else{
+        if (response.data.RoleId == 1 || response.data.RoleId == 2) {
           Swal.fire({
-            title: "Error!",
-            text: "Usted no tiene acceso",
-            icon: "error",
-            confirmButtonText: "Aceptar",
+            position: "top-end",
+            icon: "success",
+            title: `Bienvenido ${response.data.FirstName}`,
+            showConfirmButton: false,
+            timer: 1500,
           });
+          setUser(response.data);
+          navigate("/");
         }
       }
     } catch (error) {
