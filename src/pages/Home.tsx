@@ -1,7 +1,21 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import { fetchPaymentCounts, getClientDue } from "../services/Reports";
+import { useEffect, useState } from "react";
 
 export function HomePage() {
+  const [datosPayment, setdatosPayment] = useState<any>();
+  const [clientDueData, setClientDueData] = useState<any[]>([]);
+  const formatDate = (isoDate: any) => {
+    const date = new Date(isoDate);
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString();
+
+    return `${day}/${month}/${year}`;
+  };
+
   const dataMultiLinea = {
     series: [
       {
@@ -32,6 +46,21 @@ export function HomePage() {
     } as ApexOptions,
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const paymentCountResponse = await fetchPaymentCounts();
+        setdatosPayment(paymentCountResponse);
+        const clientDueResponse = await getClientDue();
+        setClientDueData(clientDueResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -42,7 +71,9 @@ export function HomePage() {
                 <div className="d-flex align-items-center">
                   <div>
                     <p className="mb-0 text-secondary">Total de ventas</p>
-                    <h4 className="my-1 text-info">321</h4>
+                    <h4 className="my-1 text-info">
+                      {datosPayment ? datosPayment.paymentCount : "0"}
+                    </h4>
                   </div>
                   <div className="widgets-icons-2 rounded-circle bg-gradient-blues text-white ms-auto">
                     <i className="bx bxs-cart" />
@@ -56,8 +87,10 @@ export function HomePage() {
               <div className="card-body">
                 <div className="d-flex align-items-center">
                   <div>
-                    <p className="mb-0 text-secondary">Ingresos totales</p>
-                    <h4 className="my-1 text-danger">S/.1200</h4>
+                    <p className="mb-0 text-secondary">Ingresos (Membresias)</p>
+                    <h4 className="my-1 text-danger">
+                      S/{datosPayment ? datosPayment.totalRevenue : "0"}
+                    </h4>
                   </div>
                   <div className="widgets-icons-2 rounded-circle bg-gradient-burning text-white ms-auto">
                     <i className="bx bxs-wallet" />
@@ -72,7 +105,9 @@ export function HomePage() {
                 <div className="d-flex align-items-center">
                   <div>
                     <p className="mb-0 text-secondary">Productos totales</p>
-                    <h4 className="my-1 text-success">46</h4>
+                    <h4 className="my-1 text-success">
+                      {datosPayment ? datosPayment.productCount : "0"}
+                    </h4>
                   </div>
                   <div className="widgets-icons-2 rounded-circle bg-gradient-ohhappiness text-white ms-auto">
                     <i className="bx bxs-bar-chart-alt-2" />
@@ -87,7 +122,9 @@ export function HomePage() {
                 <div className="d-flex align-items-center">
                   <div>
                     <p className="mb-0 text-secondary">Total de clientes</p>
-                    <h4 className="my-1 text-warning">538</h4>
+                    <h4 className="my-1 text-warning">
+                      {datosPayment ? datosPayment.clientCount : "0"}
+                    </h4>
                   </div>
                   <div className="widgets-icons-2 rounded-circle bg-gradient-orange text-white ms-auto">
                     <i className="bx bxs-group" />
@@ -98,7 +135,7 @@ export function HomePage() {
           </div>
         </div>
         <div className="row">
-          <div className="col-12 col-lg-6 d-flex">
+          <div className="col-12 col-lg-5 d-flex">
             <div className="card radius-10 w-100">
               <div className="card-header">
                 <div className="d-flex align-items-center">
@@ -117,7 +154,7 @@ export function HomePage() {
               </div>
             </div>
           </div>
-          <div className="col-12 col-lg-6 d-flex">
+          <div className="col-12 col-lg-7 d-flex">
             <div className="card radius-10 w-100">
               <div className="card-header">
                 <div className="d-flex align-items-center">
@@ -133,19 +170,23 @@ export function HomePage() {
                       <tr>
                         <th scope="col">Código</th>
                         <th scope="col">Nombres y apellidos</th>
+                        <th scope="col">Debe</th>
                         <th scope="col">Fecha inicio</th>
                         <th scope="col">Fecha fin</th>
-                        <th scope="col">Termina (dias)</th>
+                        <th scope="col">Termina</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>2001</td>
-                        <td>Jheyson Jhair Arone Angeles</td>
-                        <td>12/11/12</td>
-                        <td>12/12/12</td>
-                        <td>24</td>
-                      </tr>
+                      {clientDueData.map((client: any) => (
+                        <tr key={client.id}>
+                          <td>{client.Code}</td>
+                          <td>{client.Apellido}</td>
+                          <td>{client.Due}</td>
+                          <td> {formatDate(client.StartDate)}</td>
+                          <td>{formatDate(client.EndDate)}</td>
+                          <td>2</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

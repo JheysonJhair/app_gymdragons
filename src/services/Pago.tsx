@@ -1,13 +1,57 @@
 import { Payment } from "../types/Payment";
 
+
 const API_URL = "https://zonafitbackend-production.up.railway.app/api/payment";
-const API_URL2 = 'https://zonafitbackend-production.up.railway.app/api/client/';
 const API_URL3 = "https://zonafitbackend-production.up.railway.app/api/payment/repairPayment";
 interface ApiResponse {
   msg: string;
   success: boolean;
   data: Payment;
 }
+interface User {
+  IdUser: number;
+  Code: number;
+  UserName: string;
+  Password: string;
+  FirstName: string;
+  LastName: string;
+  PhoneNumber: string;
+  Dni: string;
+  Access: boolean;
+  RoleId: number;
+  Mail: string;
+  BirthDate: string;
+  Image: string;
+}
+
+interface Membership {
+  IdMembership: number;
+  Name: string;
+  Price: number;
+  Time: number;
+  Enabled: boolean;
+}
+
+interface Payment2 {
+  PaymentId: number;
+  StartDate: string;
+  EndDate: string;
+  Total: number;
+  Discount: number;
+  PriceDiscount: number;
+  QuantityDays: number;
+  DatePayment: string;
+  Due: number;
+  PrePaid: number;
+  PaymentType: string;
+  PaymentReceipt: string;
+  Observation: string;
+  DateRegister: string;
+  User: User;
+  Membership: Membership;
+  FreezingDay: string | null;
+}
+
 interface ApiResponseClient {
   msg: string;
   success: boolean;
@@ -24,21 +68,17 @@ interface ApiResponseClient {
     Address: string;
     Whatsapp: string;
     Mail: string;
-    BirthDate: string;
+    BirthDate: string | null;
     Note: string;
     Image: string;
     Created: string;
-    Payment: Payment[];
-    Attendance: {
-      IdAttendance: number;
-      AttendanceDate: string;
-    }[];
+    Payment: Payment2[];
   };
 }
 
 export const getPagoCompletoCode = async (code: string): Promise<ApiResponseClient> => {
   try {
-    const response = await fetch(`${API_URL2}getCode/${code}`);
+    const response = await fetch(`${API_URL}/client/${code}`);
     if (!response.ok) {
       throw new Error("Error al obtener el cliente.");
     }
@@ -49,7 +89,6 @@ export const getPagoCompletoCode = async (code: string): Promise<ApiResponseClie
     throw error;
   }
 };
-
 
 //---------------------------------------------------------------- POST PAYMENT
 export async function realizarPago(pago: Payment): Promise<ApiResponse> {

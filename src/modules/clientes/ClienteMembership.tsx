@@ -8,58 +8,73 @@ import { crearCongelarDias } from "../../services/Congelar";
 export function ClientMembership() {
   const [detallePago, setDetallePago] = useState<any[]>([]);
   const [client, setClient] = useState<any>();
+
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [days, setDays] = useState("");
   const [date, setDate] = useState("");
 
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   //---------------------------------------------------------------- GET BY CODE CLIENT
-  const buscarClientePorCode = async (code: string) => {
-    if (code.length === 4) {
-      try {
-        const cliente = await getPagoCompletoCode(code);
-        console.log(cliente);
-        if (cliente.success && cliente.success) {
-          Swal.fire({
-            title: "Correcto!",
-            text: cliente.msg,
-            icon: "success",
-            confirmButtonText: "Aceptar",
-          });
-        } else {
-          Swal.fire({
-            title: "Error!",
-            text: cliente.msg,
-            icon: "error",
-            confirmButtonText: "Aceptar",
-          });
-        }
+  const buscarClientePorCode = async () => {
+    const inputCodigo = document.getElementById(
+      "inputBusqueda"
+    ) as HTMLInputElement | null;
 
-        setClient(cliente.data);
-        setDetallePago(cliente.data.Payment);
-        // Verificar si faltan menos de 10 días para finalizar la membresía
-        if (cliente.data.Payment && cliente.data.Payment.length > 0) {
-          const endDate = new Date(cliente.data.Payment[0].EndDate);
-          const today = new Date();
-          const differenceInDays = Math.floor(
-            (endDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
-          );
+    if (!inputCodigo) {
+      Swal.fire({
+        title: "Error!",
+        text: "No se encontró el campo de búsqueda.",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+      return;
+    }
 
-          if (differenceInDays < 10) {
-            setShowMembershipAlert(true);
-          } else {
-            setShowMembershipAlert(false);
-          }
-        }
-      } catch (error) {
-        setDetallePago([]);
+    const code = inputCodigo.value;
+
+    try {
+      const cliente = await getPagoCompletoCode(code);
+
+      if (cliente.success) {
+        Swal.fire({
+          title: "Correcto!",
+          text: cliente.msg,
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+      } else {
         Swal.fire({
           title: "Error!",
-          text: "Oppss, algo salio mal!",
+          text: cliente.msg,
           icon: "error",
           confirmButtonText: "Aceptar",
         });
       }
+
+      setClient(cliente.data);
+      setDetallePago(cliente.data.Payment);
+
+      if (cliente.data.Payment && cliente.data.Payment.length > 0) {
+        const endDate = new Date(cliente.data.Payment[0].EndDate);
+        const today = new Date();
+        const differenceInDays = Math.floor(
+          (endDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
+        );
+
+        if (differenceInDays < 10) {
+          setShowMembershipAlert(true);
+        } else {
+          setShowMembershipAlert(false);
+        }
+      }
+    } catch (error) {
+      setDetallePago([]);
+      Swal.fire({
+        title: "Error!",
+        text: "Oppss, algo salió mal!",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
     }
   };
 
@@ -146,10 +161,15 @@ export function ClientMembership() {
           <input
             type="text"
             className="form-control"
-            placeholder="Busque por codigo"
-            onChange={(e) => buscarClientePorCode(e.target.value)}
+            placeholder="Buscar cliente por código o nombres o apellidos o telefono..."
+            id="inputBusqueda"
           />
-          <button className="btn btn-outline-secondary" type="button">
+
+          <button
+            className="btn btn-outline-secondary"
+            type="button"
+            onClick={buscarClientePorCode}
+          >
             <i className="bx bx-search" />
           </button>
         </div>
@@ -159,9 +179,17 @@ export function ClientMembership() {
               <div className="card-header">
                 <div className="d-flex align-items-center justify-content-center">
                   <div>
-                    <h6 className="mb-2 mt-2 text-center">
-                      PLAN UNIVERSITARIO
-                    </h6>
+                    {client && client.FirstName ? (
+                      <>
+                        <h6 className="mb-2 mt-2 text-center">
+                          {client.Payment[0].Membership.Name}
+                        </h6>
+                      </>
+                    ) : (
+                      <h6 className="mb-2 mt-2 text-center">
+                        PLAN DE MEMBRESIA
+                      </h6>
+                    )}
                   </div>
                 </div>
               </div>
@@ -169,49 +197,28 @@ export function ClientMembership() {
                 <div className="col-12 col-lg-4 d-flex">
                   <div className="col-lg-12">
                     <div className="card-body">
-                      {client && client.FirstName ? (
-                        <>
-                          <div className="d-flex flex-column align-items-center text-center">
-                            <img
-                              src="../../assets/images/avatars/avatar-1.png"
-                              alt="Admin"
-                              className="rounded-circle p-1 bg-danger"
-                              width={110}
-                            />
-                            <div className="mt-3">
+                      <div className="d-flex flex-column align-items-center text-center">
+                        <img
+                          src="../../assets/images/avatars/avatar-1.png"
+                          alt="Admin"
+                          className="rounded-circle p-1 bg-danger"
+                          width={110}
+                        />
+                        <div className="mt-3">
+                          {client && client.FirstName ? (
+                            <>
                               <h4>
                                 {" "}
                                 {client.FirstName ||
                                   "Nombre no disponible"}{" "}
                                 {client.LastName || "Nombre no disponible"}
                               </h4>
-                            </div>
-                          </div>
-                          <hr className="my-3" />
-                          <ul className="list-group list-group-flush">
-                            <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                              <h6 className="mb-0">Teléfono</h6>
-                              <span className="text-secondary">
-                                {client.PhoneNumber || "No disponible"}
-                              </span>
-                            </li>
-                            <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                              <h6 className="mb-0">Sexo</h6>
-                              <span className="text-secondary">
-                                {client.Gender || "No disponible"}
-                              </span>
-                            </li>
-                            <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                              <h6 className="mb-0">Dni</h6>
-                              <span className="text-secondary">
-                                {client.Document || "No disponible"}
-                              </span>
-                            </li>
-                          </ul>
-                        </>
-                      ) : (
-                        <p>No se encontraron detalles del cliente.</p>
-                      )}
+                            </>
+                          ) : (
+                            <h4>Nombre del cliente</h4>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -290,7 +297,7 @@ export function ClientMembership() {
                             <td>{detallePago.PrePaid}</td>
                             <td>{detallePago.PaymentReceipt}</td>
                             <td>{detallePago.PaymentType}</td>
-                            <td>NO TIENE</td>
+                            <td>{detallePago.User.UserName}</td>
                           </tr>
                         ))
                       )}
@@ -312,56 +319,58 @@ export function ClientMembership() {
                 )}
               </div>
 
-              <div className="card radius-10">
-                <table className="table mb-0">
-                  <thead className="table-dark">
+              <table className="table mb-0">
+                <thead className="table-dark">
+                  <tr>
+                    <th scope="col">Promoción</th>
+                    <th scope="col">Inscripción</th>
+                    <th scope="col">Fecha inicio</th>
+                    <th scope="col">Fecha fin</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Freezing</th>
+                    <th scope="col">Responsable</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detallePago.length === 0 ? (
                     <tr>
-                      <th scope="col">Promoción</th>
-                      <th scope="col">Inscripción</th>
-                      <th scope="col">Fecha inicio</th>
-                      <th scope="col">Fecha fin</th>
-                      <th scope="col">Precio</th>
-                      <th scope="col">Freezing</th>
-                      <th scope="col">Responsable</th>
+                      <td className="">No tiene</td>
+                      <td className="">DD/MM/YY</td>
+                      <td className="">DD/MM/YY</td>
+                      <td className="">DD/MM/YY</td>
+                      <td className="">0.0</td>
+                      <td className="">0</td>
+                      <td className="">No tiene</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {detallePago.length === 0 ? (
-                      <tr>
-                        <td className="">No tiene</td>
-                        <td className="">DD/MM/YY</td>
-                        <td className="">DD/MM/YY</td>
-                        <td className="">DD/MM/YY</td>
-                        <td className="">0.0</td>
-                        <td className="">0</td>
-                        <td className="">No tiene</td>
-                      </tr>
-                    ) : (
-                      <tr key={detallePago[detallePago.length - 1].PaymentId}>
-                        <td>FALTA</td>
-                        <td>
-                          {formatDate(
-                            detallePago[detallePago.length - 1].DatePayment
-                          )}
-                        </td>
-                        <td>
-                          {formatDate(
-                            detallePago[detallePago.length - 1].StartDate
-                          )}
-                        </td>
-                        <td>
-                          {formatDate(
-                            detallePago[detallePago.length - 1].EndDate
-                          )}
-                        </td>
-                        <td>{detallePago[detallePago.length - 1].PrePaid}</td>
-                        <td>NO TIENE</td>
-                        <td>NO TIENE</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                  ) : (
+                    <tr key={detallePago[detallePago.length - 1].PaymentId}>
+                      <td>{detallePago[0].Membership.Name}</td>
+                      <td>
+                        {formatDate(
+                          detallePago[detallePago.length - 1].DatePayment
+                        )}
+                      </td>
+                      <td>
+                        {formatDate(
+                          detallePago[detallePago.length - 1].StartDate
+                        )}
+                      </td>
+                      <td>
+                        {formatDate(
+                          detallePago[detallePago.length - 1].EndDate
+                        )}
+                      </td>
+                      <td>{detallePago[detallePago.length - 1].PrePaid}</td>
+                      <td>
+                        {detallePago[0].FreezingDay !== null
+                          ? detallePago[0].FreezingDay
+                          : 0}
+                      </td>
+                      <td>{detallePago[0].User.UserName}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

@@ -43,6 +43,17 @@ export function ReportsTable() {
         </div>
         <h6 className="mb-0 text-uppercase">CAJA DE MEMBRESIAS Y PRODUCTOS</h6>
         <hr />
+        <div className="row mb-3">
+          <div className="col-md-5">
+            <input type="date" className="form-control" />
+          </div>
+          <div className="col-md-5">
+            <input type="date" className="form-control" />
+          </div>
+          <div className="col-md-2">
+            <button className="btn btn-danger">Obtener Datos</button>
+          </div>
+        </div>
         <div className="card">
           <div className="card-body">
             <div className="table-responsive">

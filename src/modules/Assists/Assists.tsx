@@ -78,7 +78,7 @@ export function Assists() {
           <input
             type="text"
             className="form-control"
-            placeholder="Buscar cliente por código XXXX"
+            placeholder="Buscar cliente por código o nombres o apellidos o telefono..."
             onChange={(e) => buscarClientePorCode(e.target.value)}
           />
           <button className="btn btn-outline-secondary" type="button">

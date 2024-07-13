@@ -15,52 +15,66 @@ export function MarkAssistance() {
   const { user } = useAuth();
   const [selectedPaymentType, setSelectedPaymentType] = useState("Yape");
 
-  const buscarClientePorCode = async (code: string) => {
-    if (code.length === 4) {
-      try {
-        const cliente = await getPagoCompletoCode(code);
-        console.log(cliente);
-        if (cliente.success && cliente.success) {
-          Swal.fire({
-            title: "Correcto!",
-            text: cliente.msg,
-            icon: "success",
-            confirmButtonText: "Aceptar",
-          });
-        } else {
-          Swal.fire({
-            title: "Error!",
-            text: cliente.msg,
-            icon: "error",
-            confirmButtonText: "Aceptar",
-          });
-        }
+  const buscarClientePorCode = async () => {
+    const inputCodigo = document.getElementById(
+      "inputBusqueda"
+    ) as HTMLInputElement | null;
 
-        setClient(cliente.data);
-        setDetallePago(cliente.data.Payment);
+    if (!inputCodigo) {
+      Swal.fire({
+        title: "Error!",
+        text: "No se encontró el campo de búsqueda.",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+      return;
+    }
 
-        if (cliente.data.Payment && cliente.data.Payment.length > 0) {
-          const endDate = new Date(cliente.data.Payment[0].EndDate);
-          const today = new Date();
-          const differenceInDays = Math.floor(
-            (endDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
-          );
+    const code = inputCodigo.value;
 
-          if (differenceInDays < 10) {
-            setShowMembershipAlert(true);
-          } else {
-            setShowMembershipAlert(false);
-          }
-        }
-      } catch (error) {
-        setDetallePago([]);
+    try {
+      const cliente = await getPagoCompletoCode(code);
+
+      if (cliente.success) {
+        Swal.fire({
+          title: "Correcto!",
+          text: cliente.msg,
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+      } else {
         Swal.fire({
           title: "Error!",
-          text: "Oppss, algo salio mal!",
+          text: cliente.msg,
           icon: "error",
           confirmButtonText: "Aceptar",
         });
       }
+
+      setClient(cliente.data);
+      setDetallePago(cliente.data.Payment);
+
+      if (cliente.data.Payment && cliente.data.Payment.length > 0) {
+        const endDate = new Date(cliente.data.Payment[0].EndDate);
+        const today = new Date();
+        const differenceInDays = Math.floor(
+          (endDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
+        );
+
+        if (differenceInDays < 10) {
+          setShowMembershipAlert(true);
+        } else {
+          setShowMembershipAlert(false);
+        }
+      }
+    } catch (error) {
+      setDetallePago([]);
+      Swal.fire({
+        title: "Error!",
+        text: "Oppss, algo salió mal!",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
     }
   };
 
@@ -183,19 +197,19 @@ export function MarkAssistance() {
                 <div className="row mb-3">
                   <div className="col-sm-6">
                     <div className="input-group">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Código del cliente"
-                        onChange={(e) => buscarClientePorCode(e.target.value)}
-                      />
-                      <button
-                        className="btn btn-outline-secondary"
-                        type="button"
-                        disabled
-                      >
-                        <i className="bx bx-search"></i>
-                      </button>
+                    <input
+            type="text"
+            className="form-control"
+            placeholder="Busque por codigo"
+            id="inputBusqueda"
+          />
+          <button
+            className="btn btn-outline-secondary"
+            type="button"
+            onClick={buscarClientePorCode}
+          >
+            <i className="bx bx-search" />
+          </button>
                     </div>
                   </div>
                   <div className="col-sm-6">
@@ -271,7 +285,17 @@ export function MarkAssistance() {
                 <div className="card-header">
                   <div className="d-flex align-items-center justify-content-center">
                     <div>
-                      <h6 className="mb-0 text-center">PLAN UNIVERSITARIO</h6>
+                    {client && client.FirstName ? (
+                      <>
+                        <h6 className="mb-2 mt-2 text-center">
+                          {client.Payment[0].Membership.Name}
+                        </h6>
+                      </>
+                    ) : (
+                      <h6 className="mb-2 mt-2 text-center">
+                        PLAN DE MEMBRESIA
+                      </h6>
+                    )}
                     </div>
                   </div>
                 </div>
@@ -382,7 +406,7 @@ export function MarkAssistance() {
                             <td>{detallePago.PrePaid}</td>
                             <td>{detallePago.PaymentReceipt}</td>
                             <td>{detallePago.PaymentType}</td>
-                            <td>NO TIENE</td>
+                            <td>{detallePago.User.UserName}</td>
                           </tr>
                         ))
                       )}
@@ -419,7 +443,7 @@ export function MarkAssistance() {
                 </tr>
               ) : (
                 <tr key={detallePago[detallePago.length - 1].PaymentId}>
-                  <td>FALTA</td>
+                        <td>{detallePago[0].Membership.Name}</td>
                   <td>
                     {formatDate(
                       detallePago[detallePago.length - 1].DatePayment
@@ -432,8 +456,12 @@ export function MarkAssistance() {
                     {formatDate(detallePago[detallePago.length - 1].EndDate)}
                   </td>
                   <td>{detallePago[detallePago.length - 1].PrePaid}</td>
-                  <td>NO TIENE</td>
-                  <td>NO TIENE</td>
+                        <td>
+                          {detallePago[0].FreezingDay !== null
+                            ? detallePago[0].FreezingDay
+                            : 0}
+                        </td>
+                        <td>{detallePago[0].User.UserName}</td>
                 </tr>
               )}
             </tbody>

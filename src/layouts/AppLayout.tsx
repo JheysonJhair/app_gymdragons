@@ -211,7 +211,7 @@ function AppLayout() {
               </>
             )}
             <li>
-              <a href="https://themeforest.net/user/codervent" target="_blank">
+              <a href="https://www.linkedin.com/in/jheysonjhairpro/" target="_blank">
                 <div className="parent-icon">
                   <i className="bx bx-support" />
                 </div>
