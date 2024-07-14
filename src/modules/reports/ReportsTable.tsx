@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
-import { fetchIncomeMembershipByDateRange, fetchIncomeProductByDateRange, fetchPaymentByDateRange } from "../../services/Reports";
+import {
+  fetchIncomeMembershipByDateRange,
+  fetchIncomeProductByDateRange,
+  fetchPaymentByDateRange,
+  fetchProductByDateRange,
+} from "../../services/Reports";
+import { formatDate } from "../../utils/common";
 
-// Define la interfaz Payment
 interface Payment {
   UserName: string;
   Plan: string;
@@ -14,8 +19,15 @@ interface Payment {
   EndDate: string;
   PaymentType: string;
 }
-
-
+interface Product {
+  Responsable: string;
+  Fechaventa: string;
+  Producto: string;
+  Precio: any;
+  Descripcion: string;
+  Cantidad: number;
+  Formapago: string;
+}
 
 export function ReportsTable() {
   const [ingresoTotalMembresias, setIngresoTotalMembresias] = useState(0);
@@ -39,10 +51,14 @@ export function ReportsTable() {
   });
 
   const [paymentData, setPaymentData] = useState<Payment[]>([]);
+  const [productPaymentData, setProductPaymentData] = useState<Product[]>([]);
 
   const handleFetchData = async () => {
     try {
-      const data = await fetchIncomeMembershipByDateRange(fechaInicio, fechaFin);
+      const data = await fetchIncomeMembershipByDateRange(
+        fechaInicio,
+        fechaFin
+      );
       if (data.success) {
         setMembresiasData(data.data[0]);
         setIngresoTotalMembresias(data.data[0]["Ingreso Total"]);
@@ -54,29 +70,65 @@ export function ReportsTable() {
         setIngresoTotalProductos(data2.data[0]["Ingreso Total"]);
       }
 
-      const paymentDataResponse = await fetchPaymentByDateRange(fechaInicio, fechaFin);
-      console.log(paymentData)
+      const paymentDataResponse = await fetchPaymentByDateRange(
+        fechaInicio,
+        fechaFin
+      );
       if (paymentDataResponse.success) {
         setPaymentData(paymentDataResponse.data);
+      }
+
+      const productDataResponse = await fetchProductByDateRange(
+        fechaInicio,
+        fechaFin
+      );
+      console.log(productDataResponse)
+      if (productDataResponse.success) {
+        setProductPaymentData(productDataResponse.data);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
+  const handleTodayReport = async () => {
+    const today = new Date().toISOString().split("T")[0];
+
+    try {
+      const data = await fetchIncomeMembershipByDateRange(today, today);
+      if (data.success) {
+        setMembresiasData(data.data[0]);
+        setIngresoTotalMembresias(data.data[0]["Ingreso Total"]);
+      }
+
+      const data2 = await fetchIncomeProductByDateRange(today, today);
+      if (data2.success) {
+        setProductData(data2.data[0]);
+        setIngresoTotalProductos(data2.data[0]["Ingreso Total"]);
+      }
+
+      const paymentDataResponse = await fetchPaymentByDateRange(today, today);
+      if (paymentDataResponse.success) {
+        setPaymentData(paymentDataResponse.data);
+      }
+
+      const productDataResponse = await fetchProductByDateRange(today, today);
+      if (productDataResponse.success) {
+        setProductPaymentData(productDataResponse.data);
+      }
+
+      setFechaInicio(today);
+      setFechaFin(today);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   useEffect(() => {
-    const membresiasElement = document.querySelector("#membresias-total");
-    const productosElement = document.querySelector("#productos-total");
-
-    const membresiasTotal = membresiasElement ? parseFloat(membresiasElement.textContent || "0") : 0;
-    const productosTotal = productosElement ? parseFloat(productosElement.textContent || "0") : 0;
-
-    setIngresoTotalMembresias(membresiasTotal);
-    setIngresoTotalProductos(productosTotal);
+    handleTodayReport();
   }, []);
 
   const ingresoNeto = ingresoTotalMembresias + ingresoTotalProductos;
-
 
   return (
     <div className="page-wrapper">
@@ -101,7 +153,7 @@ export function ReportsTable() {
         <h6 className="mb-0 text-uppercase">CAJA DE MEMBRESIAS Y PRODUCTOS</h6>
         <hr />
         <div className="row mb-3">
-          <div className="col-md-5">
+          <div className="col-md-4">
             <input
               type="date"
               className="form-control"
@@ -109,7 +161,7 @@ export function ReportsTable() {
               onChange={(e) => setFechaInicio(e.target.value)}
             />
           </div>
-          <div className="col-md-5">
+          <div className="col-md-4">
             <input
               type="date"
               className="form-control"
@@ -120,6 +172,14 @@ export function ReportsTable() {
           <div className="col-md-2">
             <button className="btn btn-danger" onClick={handleFetchData}>
               Obtener Datos
+            </button>
+          </div>
+          <div className="col-md-2">
+            <button
+              className="btn btn-outline-danger"
+              onClick={handleTodayReport}
+            >
+              Reporte de hoy
             </button>
           </div>
         </div>
@@ -214,12 +274,12 @@ export function ReportsTable() {
                         <td>{payment.UserName}</td>
                         <td>{payment.Plan}</td>
                         <td>{payment.Name}</td>
-                        <td>{payment.Celular || 'N/A'}</td>
+                        <td>{payment.Celular || "N/A"}</td>
                         <td>{payment.Code}</td>
                         <td>{payment.Total}</td>
                         <td>{payment.Due}</td>
-                        <td>{payment.StartDate}</td>
-                        <td>{payment.EndDate}</td>
+                        <td>{formatDate(payment.StartDate)}</td>
+                        <td>{formatDate(payment.EndDate)}</td>
                         <td>{payment.PaymentType}</td>
                       </tr>
                     ))}
@@ -242,58 +302,24 @@ export function ReportsTable() {
                       <th>Responsable</th>
                       <th>Fecha de venta</th>
                       <th>Producto</th>
-                      <th>Precio</th>
+                      <th>Precio total</th>
                       <th>Descripcion</th>
                       <th>Cantidad</th>
                       <th>Forma de pago</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Jhair</td>
-                      <td>12/12/12</td>
-                      <td>Agua</td>
-                      <td>s./3</td>
-                      <td>Es una bebida natural</td>
-                      <td>2</td>
-                      <td>Yape</td>
-                    </tr>
-                    <tr>
-                      <td>Jhair</td>
-                      <td>12/12/12</td>
-                      <td>Agua</td>
-                      <td>s./3</td>
-                      <td>Es una bebida natural</td>
-                      <td>2</td>
-                      <td>Yape</td>
-                    </tr>
-                    <tr>
-                      <td>Jhair</td>
-                      <td>12/12/12</td>
-                      <td>Agua</td>
-                      <td>s./3</td>
-                      <td>Es una bebida natural</td>
-                      <td>2</td>
-                      <td>Yape</td>
-                    </tr>
-                    <tr>
-                      <td>Jhair</td>
-                      <td>12/12/12</td>
-                      <td>Agua</td>
-                      <td>s./3</td>
-                      <td>Es una bebida natural</td>
-                      <td>2</td>
-                      <td>Yape</td>
-                    </tr>
-                    <tr>
-                      <td>Jhair</td>
-                      <td>12/12/12</td>
-                      <td>Agua</td>
-                      <td>s./3</td>
-                      <td>Es una bebida natural</td>
-                      <td>2</td>
-                      <td>Yape</td>
-                    </tr>
+                    {productPaymentData.map((payment, index) => (
+                      <tr key={index}>
+                        <td>{payment.Responsable}</td>
+                        <td>{payment.Fechaventa}</td>
+                        <td>{payment.Producto}</td>
+                        <td>{payment.Precio}</td>
+                        <td>{payment.Descripcion}</td>
+                        <td>{payment.Cantidad}</td>
+                        <td>{payment.Formapago}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

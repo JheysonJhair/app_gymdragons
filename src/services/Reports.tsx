@@ -131,3 +131,26 @@ export async function fetchPaymentByDateRange(startDate: any, endDate: any) {
   const data = await response.json();
   return data;
 }
+
+export async function fetchProductByDateRange(startDate: any, endDate: any) {
+  const response = await fetch(
+    "https://zonafitbackend-production.up.railway.app/api/payment/paymentProduct",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        StartDate: startDate,
+        EndDate: endDate,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Error fetching product data");
+  }
+
+  const data = await response.json();
+  return data;
+}
