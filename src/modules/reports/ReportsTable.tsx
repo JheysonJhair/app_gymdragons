@@ -86,6 +86,7 @@ export function ReportsTable() {
 
   const ingresoNeto = ingresoTotalMembresias + ingresoTotalProductos;
 
+
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -135,7 +136,10 @@ export function ReportsTable() {
           <div className="card-body">
             <div className="table-responsive">
               <h6 className="mb-0 text-uppercase mb-3">MEMBRESIAS </h6>
-              <table id="example2" className="table table-striped table-bordered">
+              <table
+                id="example2"
+                className="table table-striped table-bordered"
+              >
                 <thead>
                   <tr>
                     <th>Total deudas</th>
@@ -151,12 +155,17 @@ export function ReportsTable() {
                     <td>{membresiasData["Efectivo"]}</td>
                     <td>{membresiasData["Tarjeta de Credito"]}</td>
                     <td>{membresiasData["Yape"]}</td>
-                    <td id="membresias-total">{membresiasData["Ingreso Total"]}</td>
+                    <td id="membresias-total">
+                      {membresiasData["Ingreso Total"]}
+                    </td>
                   </tr>
                 </tbody>
               </table>
               <h6 className="mb-0 text-uppercase mb-3">PRODUCTOS </h6>
-              <table id="example2" className="table table-striped table-bordered">
+              <table
+                id="example2"
+                className="table table-striped table-bordered"
+              >
                 <thead>
                   <tr>
                     <th>Total deudas</th>
@@ -172,7 +181,9 @@ export function ReportsTable() {
                     <td>{productData["Efectivo"]}</td>
                     <td>{productData["Tarjeta de Credito"]}</td>
                     <td>{productData["Yape"]}</td>
-                    <td id="productos-total">{productData["Ingreso Total"]}</td>
+                    <td id="membresias-total">
+                      {productData["Ingreso Total"]}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -188,7 +199,10 @@ export function ReportsTable() {
           <div className="card">
             <div className="card-body">
               <div className="table-responsive">
-                <table id="example2" className="table table-striped table-bordered">
+                <table
+                  id="example2"
+                  className="table table-striped table-bordered"
+                >
                   <thead>
                     <tr>
                       <th>Responsable</th>
@@ -218,6 +232,77 @@ export function ReportsTable() {
                         <td>{payment.PaymentType}</td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <h6 className="mb-0 text-uppercase">Venta de productos</h6>
+          <hr />
+          <div className="card">
+            <div className="card-body">
+              <div className="table-responsive">
+                <table
+                  id="example2"
+                  className="table table-striped table-bordered"
+                >
+                  <thead>
+                    <tr>
+                      <th>Responsable</th>
+                      <th>Fecha de venta</th>
+                      <th>Producto</th>
+                      <th>Precio</th>
+                      <th>Descripcion</th>
+                      <th>Cantidad</th>
+                      <th>Forma de pago</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Jhair</td>
+                      <td>12/12/12</td>
+                      <td>Agua</td>
+                      <td>s./3</td>
+                      <td>Es una bebida natural</td>
+                      <td>2</td>
+                      <td>Yape</td>
+                    </tr>
+                    <tr>
+                      <td>Jhair</td>
+                      <td>12/12/12</td>
+                      <td>Agua</td>
+                      <td>s./3</td>
+                      <td>Es una bebida natural</td>
+                      <td>2</td>
+                      <td>Yape</td>
+                    </tr>
+                    <tr>
+                      <td>Jhair</td>
+                      <td>12/12/12</td>
+                      <td>Agua</td>
+                      <td>s./3</td>
+                      <td>Es una bebida natural</td>
+                      <td>2</td>
+                      <td>Yape</td>
+                    </tr>
+                    <tr>
+                      <td>Jhair</td>
+                      <td>12/12/12</td>
+                      <td>Agua</td>
+                      <td>s./3</td>
+                      <td>Es una bebida natural</td>
+                      <td>2</td>
+                      <td>Yape</td>
+                    </tr>
+                    <tr>
+                      <td>Jhair</td>
+                      <td>12/12/12</td>
+                      <td>Agua</td>
+                      <td>s./3</td>
+                      <td>Es una bebida natural</td>
+                      <td>2</td>
+                      <td>Yape</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>

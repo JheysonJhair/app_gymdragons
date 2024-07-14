@@ -286,6 +286,26 @@ export function MarkAssistance() {
                     </div>
                   </div>
                 </div>
+                <div className="row mb-3 mt-3">
+                  <label htmlFor="input51" className="col-sm-4 col-form-label">
+                    CÓDIGO
+                  </label>
+                  <div className="col-sm-8">
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bx bx-id-card" />
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="input51"
+                        placeholder=""
+                        value={client?.Code || ""}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

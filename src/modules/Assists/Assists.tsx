@@ -162,6 +162,29 @@ export function Assists() {
                     </div>
                     <div className="row mb-3">
                       <label
+                        htmlFor="input03"
+                        className="col-sm-3 col-form-label"
+                      >
+                        CÓDIGO
+                      </label>
+                      <div className="col-sm-9">
+                        <div className="input-group">
+                          <span className="input-group-text">
+                            <i className="bx bx-id-card" />
+                          </span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="input03"
+                            placeholder="Dni"
+                            value={cliente?.Code || ""}
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row mb-3">
+                      <label
                         htmlFor="input04"
                         className="col-sm-3 col-form-label"
                       >

@@ -227,6 +227,19 @@ export function ClientMembership() {
                             <h4>Nombre del cliente</h4>
                           )}
                         </div>
+                        <div className="mt-3">
+                          {client && client.FirstName ? (
+                            <>
+                              <h4>
+                                CÓDIGO:
+                                {client.Code ||
+                                  "Código no disponible"}{" "}
+                              </h4>
+                            </>
+                          ) : (
+                            <h4>Código del cliente</h4>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
