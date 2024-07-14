@@ -101,18 +101,18 @@ export async function eliminarCliente(
 }
 
 //---------------------------------------------------------------- GET BY CODE CLIENT
-export const obtenerClientePorCODE = async (code: string): Promise<ApiResponse> => {
+export const obtenerClientePorCODE = async (
+  code: string
+): Promise<ApiResponse> => {
   try {
     const response = await fetch(`${API_URL}getCode/${code}`);
     if (!response.ok) {
-      throw new Error('Error al obtener las asistencias.');
+      throw new Error("Error al obtener las asistencias.");
     }
     const data: ApiResponse = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching assistances:', error);
+    console.error("Error fetching assistances:", error);
     throw error;
   }
 };
-
-

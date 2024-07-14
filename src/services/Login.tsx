@@ -1,13 +1,14 @@
-import axios from 'axios';
+import axios from "axios";
 import { Login } from "../types/User";
 
 export const login = async (loginData: Login) => {
   try {
-    console.log(loginData)
-    const response = await axios.post('https://zonafitbackend-production.up.railway.app/api/user/login', loginData);
-    console.log(response);
+    const response = await axios.post(
+      "https://zonafitbackend-production.up.railway.app/api/user/login",
+      loginData
+    );
     return response.data;
   } catch (error) {
-    throw new Error('Error al iniciar sesión');
+    throw new Error("Error al iniciar sesión");
   }
 };

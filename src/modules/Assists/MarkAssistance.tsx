@@ -1,20 +1,28 @@
 import { useState } from "react";
+import { useAuth } from "../../hooks/AuthContext";
+import Swal from "sweetalert2";
+
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import Swal from "sweetalert2";
+
 import { getPagoCompletoCode, repairPago } from "../../services/Pago";
 import { crearAsistencia } from "../../services/Asistencia";
-import { useAuth } from "../../hooks/AuthContext";
+import { formatDate } from "../../utils/common";
+import { useNavigate } from "react-router-dom";
 
 export function MarkAssistance() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [detallePago, setDetallePago] = useState<any[]>([]);
   const [client, setClient] = useState<any>();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   const [days, setDays] = useState("");
-  const { user } = useAuth();
+
   const [selectedPaymentType, setSelectedPaymentType] = useState("Yape");
 
+  //---------------------------------------------------------------- SEARCH CLIENT CODE
   const buscarClientePorCode = async () => {
     const inputCodigo = document.getElementById(
       "inputBusqueda"
@@ -34,7 +42,17 @@ export function MarkAssistance() {
 
     try {
       const cliente = await getPagoCompletoCode(code);
-
+      if (cliente.data.Payment.length === 0) {
+        Swal.fire({
+          title: "Error!",
+          text: "El cliente no ah realizado el pago!",
+          icon: "info",
+          confirmButtonText: "Aceptar",
+        });
+        setClient(null);
+        setDetallePago([]);
+        return;
+      }
       if (cliente.success) {
         Swal.fire({
           title: "Correcto!",
@@ -78,10 +96,7 @@ export function MarkAssistance() {
     }
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
-  };
-
+  //---------------------------------------------------------------- POST DUE CLIENT
   const saveChanges = async () => {
     try {
       if (!days.trim()) {
@@ -93,16 +108,15 @@ export function MarkAssistance() {
         });
         return;
       }
-  
+
       const paymentData = {
-        IdClient: client.IdClient, 
-        IdUser: user?.IdUser, 
+        IdClient: client.IdClient,
+        IdUser: user?.IdUser,
         Amount: Number(days),
         TypePayment: selectedPaymentType,
       };
-      console.log(paymentData);
       const response = await repairPago(paymentData);
-  
+
       if (response.success) {
         Swal.fire({
           title: "Éxito!",
@@ -110,6 +124,8 @@ export function MarkAssistance() {
           icon: "success",
           confirmButtonText: "Aceptar",
         });
+
+        navigate("/");
       } else {
         Swal.fire({
           title: "Error!",
@@ -118,6 +134,7 @@ export function MarkAssistance() {
           confirmButtonText: "Aceptar",
         });
       }
+      setModalIsOpen(false);
     } catch (error) {
       Swal.fire({
         title: "Error!",
@@ -127,23 +144,14 @@ export function MarkAssistance() {
       });
     }
   };
-  
 
-
-  
-  const formatDate = (isoDate: any) => {
-    const date = new Date(isoDate);
-
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString();
-
-    return `${day}/${month}/${year}`;
+  const closeModal = () => {
+    setModalIsOpen(false);
   };
+  //---------------------------------------------------------------- POST  ATTENDANCE
   const marcarAsistenciaCliente = async () => {
     try {
       const response = await crearAsistencia(client?.Code, user?.IdUser || 0);
-      console.log(response.success);
       if (response.success) {
         Swal.fire({
           title: "Éxito!",
@@ -191,29 +199,29 @@ export function MarkAssistance() {
         </div>
 
         <div className="row">
-          <div className="col-12 col-lg-5 d-flex">
+          <div className="col-12 col-lg-6 d-flex">
             <div className="card radius-10 w-100">
               <div className="card-body">
                 <div className="row mb-3">
-                  <div className="col-sm-6">
+                  <div className="col-sm-8">
                     <div className="input-group">
-                    <input
-            type="text"
-            className="form-control"
-            placeholder="Busque por codigo"
-            id="inputBusqueda"
-          />
-          <button
-            className="btn btn-outline-secondary"
-            type="button"
-            onClick={buscarClientePorCode}
-          >
-            <i className="bx bx-search" />
-          </button>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Código/nombres/apellidos/telefono"
+                        id="inputBusqueda"
+                      />
+                      <button
+                        className="btn btn-outline-secondary"
+                        type="button"
+                        onClick={buscarClientePorCode}
+                      >
+                        <i className="bx bx-search" />
+                      </button>
                     </div>
                   </div>
-                  <div className="col-sm-6">
-                  {detallePago.length !== 0 && (
+                  <div className="col-sm-4">
+                    {detallePago.length !== 0 && (
                       <Button
                         variant="danger"
                         onClick={() => marcarAsistenciaCliente()}
@@ -231,7 +239,7 @@ export function MarkAssistance() {
                       src="../../assets/images/avatars/avatar-1.png"
                       alt="Admin"
                       className=" p-1 bg-danger"
-                      width={190}
+                      width={160}
                     />
                   </div>
                 </div>
@@ -252,6 +260,7 @@ export function MarkAssistance() {
                         value={`${client?.FirstName || ""} ${
                           client?.LastName || ""
                         }`}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -272,6 +281,7 @@ export function MarkAssistance() {
                         id="input51"
                         placeholder=""
                         value={client?.PhoneNumber || ""}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -279,23 +289,23 @@ export function MarkAssistance() {
               </div>
             </div>
           </div>
-          <div className="col-12 col-lg-7 d-flex">
+          <div className="col-12 col-lg-6 d-flex">
             <div className="card radius-10 w-100">
               <div className="card-body">
                 <div className="card-header">
                   <div className="d-flex align-items-center justify-content-center">
                     <div>
-                    {client && client.FirstName ? (
-                      <>
+                      {client && client.FirstName ? (
+                        <>
+                          <h6 className="mb-2 mt-2 text-center">
+                            {client.Payment[detallePago.length - 1].Membership.Name}
+                          </h6>
+                        </>
+                      ) : (
                         <h6 className="mb-2 mt-2 text-center">
-                          {client.Payment[0].Membership.Name}
+                          PLAN DE MEMBRESIA
                         </h6>
-                      </>
-                    ) : (
-                      <h6 className="mb-2 mt-2 text-center">
-                        PLAN DE MEMBRESIA
-                      </h6>
-                    )}
+                      )}
                     </div>
                   </div>
                 </div>
@@ -369,6 +379,7 @@ export function MarkAssistance() {
                         <th scope="col">Estado</th>
                         <th scope="col">Fecha</th>
                         <th scope="col">Monto</th>
+                        <th scope="col">Debe</th>
                         <th scope="col">Comprobante</th>
                         <th scope="col">Fpago</th>
                         <th scope="col">Creador</th>
@@ -404,6 +415,7 @@ export function MarkAssistance() {
                             </td>
                             <td>{formatDate(detallePago.DatePayment)}</td>
                             <td>{detallePago.PrePaid}</td>
+                            <td>{detallePago.Due}</td>
                             <td>{detallePago.PaymentReceipt}</td>
                             <td>{detallePago.PaymentType}</td>
                             <td>{detallePago.User.UserName}</td>
@@ -443,7 +455,7 @@ export function MarkAssistance() {
                 </tr>
               ) : (
                 <tr key={detallePago[detallePago.length - 1].PaymentId}>
-                        <td>{detallePago[0].Membership.Name}</td>
+                  <td>{detallePago[detallePago.length - 1].Membership.Name}</td>
                   <td>
                     {formatDate(
                       detallePago[detallePago.length - 1].DatePayment
@@ -455,13 +467,15 @@ export function MarkAssistance() {
                   <td>
                     {formatDate(detallePago[detallePago.length - 1].EndDate)}
                   </td>
-                  <td>{detallePago[detallePago.length - 1].PrePaid}</td>
-                        <td>
-                          {detallePago[0].FreezingDay !== null
-                            ? detallePago[0].FreezingDay
-                            : 0}
-                        </td>
-                        <td>{detallePago[0].User.UserName}</td>
+                  <td>{detallePago[detallePago.length - 1].Membership.Price}</td>
+                  <td>
+                    {detallePago[detallePago.length - 1].FreezingDay.length === 0
+                      ? "SIN CONGELAR"
+                      : detallePago[detallePago.length - 1].FreezingDay[
+                          detallePago[detallePago.length - 1].FreezingDay.length - 1
+                        ].NumberOfDay}
+                  </td>
+                  <td>{detallePago[detallePago.length - 1].User.UserName}</td>
                 </tr>
               )}
             </tbody>
@@ -470,7 +484,11 @@ export function MarkAssistance() {
       </div>
       <Modal show={modalIsOpen} onHide={closeModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Pagar deuda</Modal.Title>
+          {detallePago.length === 0 ? (
+            <Modal.Title>Pagar deuda </Modal.Title>
+          ) : (
+            <Modal.Title>Pagar deuda s./{detallePago[detallePago.length - 1].Due}</Modal.Title>
+          )}
         </Modal.Header>
         <Modal.Body>
           <div className="mb-3">

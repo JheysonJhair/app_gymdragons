@@ -1,21 +1,22 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
-import { addProduct } from "../../services/Producto";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+
+import { addProduct } from "../../services/Producto";
 
 export function NewProduct() {
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | undefined>(undefined);
-
   const [price, setPrice] = useState(0);
   const [purchasePrice, setPurchasePrice] = useState(0);
   const [stock, setStock] = useState(0);
   const [type, setType] = useState(0);
 
-  const navigate = useNavigate();
   const [errorMessages, setErrorMessages] = useState({
     Name: "",
     Description: "",
@@ -26,6 +27,7 @@ export function NewProduct() {
     Type: "",
   });
 
+  //---------------------------------------------------------------- VALIDATION
   const validateField = (name: any, value: any) => {
     switch (name) {
       case "Name":
@@ -48,26 +50,28 @@ export function NewProduct() {
         return null;
     }
   };
+  
+  //---------------------------------------------------------------- UPLOAD IMAGE
+  const handleImageUpload = (event: any) => {
+    const file = event.target.files?.[0];
+    const imagePreview = document.getElementById("image-preview");
 
-const handleImageUpload = (event: any) => {
-  const file = event.target.files?.[0];
-  const imagePreview = document.getElementById("image-preview");
+    if (file && imagePreview instanceof HTMLImageElement) {
+      const reader = new FileReader();
 
-  if (file && imagePreview instanceof HTMLImageElement) {
-    const reader = new FileReader();
+      reader.onload = function (e) {
+        if (typeof e.target?.result === "string") {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = "block";
+        }
+      };
 
-    reader.onload = function (e) {
-      if (typeof e.target?.result === "string") {
-        imagePreview.src = e.target.result;
-        imagePreview.style.display = "block";
-      }
-    };
+      setImage(file);
+      reader.readAsDataURL(file);
+    }
+  };
 
-    setImage(file); 
-    reader.readAsDataURL(file);
-  }
-};
-
+  //---------------------------------------------------------------- POST PRODUCT
   const handleSubmit = async () => {
     const nameError = validateField("Name", name);
     const descriptionError = validateField("Description", description);
@@ -109,7 +113,7 @@ const handleImageUpload = (event: any) => {
     const newProduct = {
       Name: name,
       Description: description,
-      file: image, 
+      file: image,
       Price: price,
       PurchasePrice: purchasePrice,
       Stock: stock,

@@ -27,7 +27,7 @@ export const fetchAssistancesByCode = async (
   }
 };
 
-//---------------------------------------------------------------- POST ASSISTS 
+//---------------------------------------------------------------- POST ASSISTS
 export async function crearAsistencia(
   identificador: string,
   idUser: number

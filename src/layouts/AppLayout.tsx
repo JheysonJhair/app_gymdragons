@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+
 import { useAuth } from "../hooks/AuthContext";
-import { useEffect } from "react";
+
 function AppLayout() {
   const { user } = useAuth();
 
@@ -55,7 +57,7 @@ function AppLayout() {
               />
             </div>
             <div>
-              <h4 className="logo-text red-text">DRAGONS</h4>
+              <h4 className="logo-text red-text">DRAGON'S</h4>
             </div>
             <div className="toggle-icon ms-auto">
               <i className="bx bx-arrow-back red-text" />
@@ -211,7 +213,10 @@ function AppLayout() {
               </>
             )}
             <li>
-              <a href="https://www.linkedin.com/in/jheysonjhairpro/" target="_blank">
+              <a
+                href="https://www.linkedin.com/in/jheysonjhairpro/"
+                target="_blank"
+              >
                 <div className="parent-icon">
                   <i className="bx bx-support" />
                 </div>
@@ -228,130 +233,7 @@ function AppLayout() {
               </div>
 
               <div className="top-menu ms-auto">
-                <ul className="navbar-nav align-items-center gap-1">
-                  <li
-                    className="nav-item mobile-search-icon d-flex d-lg-none"
-                    data-bs-toggle="modal"
-                    data-bs-target="#SearchModal"
-                  >
-                    <a className="nav-link" href="avascript:;">
-                      <i className="bx bx-search" />
-                    </a>
-                  </li>
-
-                  <li className="nav-item dropdown dropdown-large">
-                    <a
-                      className="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative"
-                      href="#"
-                      data-bs-toggle="dropdown"
-                    >
-                      <span className="alert-count">4</span>
-                      <i className="bx bx-bell" />
-                    </a>
-                    <div className="dropdown-menu dropdown-menu-end">
-                      <a href="#">
-                        <div className="msg-header">
-                          <p className="msg-header-title">Notifications</p>
-                          <p className="msg-header-badge">4 New</p>
-                        </div>
-                      </a>
-                      <div className="header-notifications-list">
-                        <a className="dropdown-item" href="#">
-                          <div className="d-flex align-items-center">
-                            <div className="user-online">
-                              <img
-                                src="../../assets/images/avatars/avatar-1.png"
-                                className="msg-avatar"
-                                alt="user avatar"
-                              />
-                            </div>
-                            <div className="flex-grow-1">
-                              <h6 className="msg-name">
-                                Daisy Anderson
-                                <span className="msg-time float-end">
-                                  5 sec ago
-                                </span>
-                              </h6>
-                              <p className="msg-info">
-                                The standard chunk of lorem
-                              </p>
-                            </div>
-                          </div>
-                        </a>
-                        <a className="dropdown-item" href="#">
-                          <div className="d-flex align-items-center">
-                            <div className="notify bg-light-danger text-danger">
-                              dc
-                            </div>
-                            <div className="flex-grow-1">
-                              <h6 className="msg-name">
-                                New Orders{" "}
-                                <span className="msg-time float-end">
-                                  2 min ago
-                                </span>
-                              </h6>
-                              <p className="msg-info">
-                                You have recived new orders
-                              </p>
-                            </div>
-                          </div>
-                        </a>
-
-                        <a className="dropdown-item" href="#">
-                          <div className="d-flex align-items-center">
-                            <div className="notify bg-light-primary">
-                              <img
-                                src="../../assets/images/app/github.png"
-                                width={25}
-                                alt="user avatar"
-                              />
-                            </div>
-                            <div className="flex-grow-1">
-                              <h6 className="msg-name">
-                                New 24 authors
-                                <span className="msg-time float-end">
-                                  1 day ago
-                                </span>
-                              </h6>
-                              <p className="msg-info">
-                                24 new authors joined last week
-                              </p>
-                            </div>
-                          </div>
-                        </a>
-                        <a className="dropdown-item" href="#">
-                          <div className="d-flex align-items-center">
-                            <div className="user-online">
-                              <img
-                                src="../../assets/images/avatars/avatar-8.png"
-                                className="msg-avatar"
-                                alt="user avatar"
-                              />
-                            </div>
-                            <div className="flex-grow-1">
-                              <h6 className="msg-name">
-                                Peter Costanzo{" "}
-                                <span className="msg-time float-end">
-                                  6 hrs ago
-                                </span>
-                              </h6>
-                              <p className="msg-info">
-                                It was popularised in the 1960s
-                              </p>
-                            </div>
-                          </div>
-                        </a>
-                      </div>
-                      <a href="#">
-                        <div className="text-center msg-footer">
-                          <button className="btn btn-primary w-100">
-                            Ver todas las notifaciones
-                          </button>
-                        </div>
-                      </a>
-                    </div>
-                  </li>
-                </ul>
+                <ul className="navbar-nav align-items-center gap-1"></ul>
               </div>
               <div className="user-box dropdown px-3">
                 <a

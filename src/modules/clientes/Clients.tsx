@@ -30,7 +30,9 @@ export function Clients() {
 
   const filteredClientes = currentClientes.filter((cliente) =>
     Object.values(cliente).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      value
+        ? value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        : false
     )
   );
 
@@ -74,6 +76,7 @@ export function Clients() {
       Swal.fire("Error", "Oppss, algo salio mal!", "error");
     }
   };
+
   //---------------------------------------------------------------- EDIT CLIENT
   const handleEditClient = (client: Client) => {
     setSelectedClient(client);

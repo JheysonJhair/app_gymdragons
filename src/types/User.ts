@@ -11,7 +11,7 @@ export interface User {
   Mail?: string;
   BirthDate: string;
   Image?: string;
-  RoleId: number;
+  RoleId?: number;
 }
 
 export interface ErrorMessages {
@@ -21,7 +21,7 @@ export interface ErrorMessages {
   LastName: string | null;
   PhoneNumber: string | null;
   Dni?: string | null;
-  Access?: string | null| boolean;
+  Access?: string | null | boolean;
   Mail?: string | null;
   BirthDate?: string | null;
   RoleId: number | null;

@@ -1,28 +1,15 @@
 import { Payment } from "../types/Payment";
-
+import { User } from "../types/User";
 
 const API_URL = "https://zonafitbackend-production.up.railway.app/api/payment";
-const API_URL3 = "https://zonafitbackend-production.up.railway.app/api/payment/repairPayment";
+const API_URL3 =
+  "https://zonafitbackend-production.up.railway.app/api/payment/repairPayment";
 interface ApiResponse {
   msg: string;
   success: boolean;
   data: Payment;
 }
-interface User {
-  IdUser: number;
-  Code: number;
-  UserName: string;
-  Password: string;
-  FirstName: string;
-  LastName: string;
-  PhoneNumber: string;
-  Dni: string;
-  Access: boolean;
-  RoleId: number;
-  Mail: string;
-  BirthDate: string;
-  Image: string;
-}
+
 
 interface Membership {
   IdMembership: number;
@@ -76,7 +63,14 @@ interface ApiResponseClient {
   };
 }
 
-export const getPagoCompletoCode = async (code: string): Promise<ApiResponseClient> => {
+interface ApiResponse {
+  msg: string;
+  success: boolean;
+}
+
+export const getPagoCompletoCode = async (
+  code: string
+): Promise<ApiResponseClient> => {
   try {
     const response = await fetch(`${API_URL}/client/${code}`);
     if (!response.ok) {
@@ -111,13 +105,6 @@ export async function realizarPago(pago: Payment): Promise<ApiResponse> {
 }
 
 //---------------------------------------------------------------- POST REPAIR PAYMENT
-
-
-interface ApiResponse {
-  msg: string;
-  success: boolean;
-}
-
 export async function repairPago(pago: any): Promise<ApiResponse> {
   try {
     const response = await fetch(API_URL3, {

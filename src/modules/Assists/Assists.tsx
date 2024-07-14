@@ -78,7 +78,7 @@ export function Assists() {
           <input
             type="text"
             className="form-control"
-            placeholder="Buscar cliente por código o nombres o apellidos o telefono..."
+            placeholder="Buscar cliente por código"
             onChange={(e) => buscarClientePorCode(e.target.value)}
           />
           <button className="btn btn-outline-secondary" type="button">
@@ -109,6 +109,7 @@ export function Assists() {
                             id="input01"
                             placeholder="Nombre"
                             value={cliente?.FirstName || ""}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -131,6 +132,7 @@ export function Assists() {
                             id="input02"
                             placeholder="Apellidos"
                             value={cliente?.LastName || ""}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -153,6 +155,7 @@ export function Assists() {
                             id="input03"
                             placeholder="Dni"
                             value={cliente?.Document || ""}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -175,6 +178,7 @@ export function Assists() {
                             id="input04"
                             placeholder="Dirección"
                             value={cliente?.Address || ""}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -205,6 +209,7 @@ export function Assists() {
                         className="form-select"
                         id="input05"
                         value={cliente?.MaritalStatus || ""}
+                        disabled
                       >
                         <option>Seleccionar estado civil</option>
                         <option value="Soltero">Soltero</option>
@@ -227,6 +232,7 @@ export function Assists() {
                         className="form-select"
                         id="input06"
                         value={cliente?.Gender || ""}
+                        disabled
                       >
                         <option value="">Seleccionar genero</option>
                         <option value="Masculino">Masculino</option>
@@ -251,6 +257,7 @@ export function Assists() {
                         id="input07"
                         placeholder="Email"
                         value={cliente?.Mail || ""}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -270,6 +277,7 @@ export function Assists() {
                         id="input08"
                         placeholder="Número"
                         value={cliente?.PhoneNumber || ""}
+                        readOnly
                       />
                     </div>
                   </div>

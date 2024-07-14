@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
+
 import { Product } from "../../types/Product";
 import { deleteProduct, fetchProductById } from "../../services/Producto";
 import EditProductModal from "./components/EditProductModal";
-import Swal from "sweetalert2";
 
 export function DetailProduct() {
+  const navigate = useNavigate();
   const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const navigate = useNavigate();
+
   //---------------------------------------------------------------- GET BY ID PRODUCT
   useEffect(() => {
     const loadProduct = async () => {

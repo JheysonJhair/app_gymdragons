@@ -1,58 +1,36 @@
+import { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import { fetchPaymentCounts, getClientDue } from "../services/Reports";
-import { useEffect, useState } from "react";
+
+import {
+  fetchClientCountsByDate,
+  fetchPaymentCounts,
+  getClientDue,
+} from "../services/Reports";
+import { calculateDaysBetweenDates, formatDate } from "../utils/common";
 
 export function HomePage() {
-  const [datosPayment, setdatosPayment] = useState<any>();
+  const [datosPayment, setDatosPayment] = useState<any>();
   const [clientDueData, setClientDueData] = useState<any[]>([]);
-  const formatDate = (isoDate: any) => {
-    const date = new Date(isoDate);
+  const [clientCountsByMonth, setClientCountsByMonth] = useState<any[]>([]);
 
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString();
-
-    return `${day}/${month}/${year}`;
-  };
-
-  const dataMultiLinea = {
-    series: [
-      {
-        name: "Clientes",
-        data: [10, 80, 25, 52, 29, 60, 74, 98, 205],
-      },
-    ],
-    options: {
-      chart: {
-        type: "line",
-      },
-      xaxis: {
-        categories: [
-          "Enero",
-          "Febrero",
-          "Marzo",
-          "Abril",
-          "Mayo",
-          "Junio",
-          "Julio",
-          "Agosto",
-          "Septiembre",
-        ],
-      },
-      legend: {
-        position: "top",
-      },
-    } as ApexOptions,
-  };
-
+  //---------------------------------------------------------------- GET DATA
   useEffect(() => {
     const fetchData = async () => {
       try {
         const paymentCountResponse = await fetchPaymentCounts();
-        setdatosPayment(paymentCountResponse);
+
+        setDatosPayment(paymentCountResponse);
         const clientDueResponse = await getClientDue();
-        setClientDueData(clientDueResponse.data);
+
+        if(clientDueResponse.success){
+          setClientDueData(clientDueResponse.data);
+        }
+
+        const clientCountsResponse = await fetchClientCountsByDate();
+        if(clientCountsResponse){
+          setClientCountsByMonth(clientCountsResponse);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -61,12 +39,37 @@ export function HomePage() {
     fetchData();
   }, []);
 
+  //---------------------------------------------------------------- GRAFIC
+  const dataMultiLinea = {
+    series: [
+      {
+        name: "Clientes",
+        data: clientCountsByMonth.map((item) => parseInt(item.count)),
+      },
+    ],
+    options: {
+      chart: {
+        type: "line",
+      },
+      xaxis: {
+        categories: clientCountsByMonth.map((item) => {
+          const [year, month] = item.month.split("-");
+          const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+          return date.toLocaleString("default", { month: "long" });
+        }),
+      },
+      legend: {
+        position: "top",
+      },
+    } as ApexOptions,
+  };
+
   return (
     <div className="page-wrapper">
       <div className="page-content">
         <div className="row row-cols-1 row-cols-md-2 row-cols-xl-4">
           <div className="col">
-            <div className="card radius-10 border-start border-0   border-4 border-info">
+            <div className="card radius-10 border-start border-0 border-4 border-info">
               <div className="card-body">
                 <div className="d-flex align-items-center">
                   <div>
@@ -83,7 +86,7 @@ export function HomePage() {
             </div>
           </div>
           <div className="col">
-            <div className="card radius-10 border-start border-0   border-4 border-danger">
+            <div className="card radius-10 border-start border-0 border-4 border-danger">
               <div className="card-body">
                 <div className="d-flex align-items-center">
                   <div>
@@ -150,7 +153,7 @@ export function HomePage() {
                   series={dataMultiLinea.series}
                   type="line"
                   height={350}
-                />{" "}
+                />
               </div>
             </div>
           </div>
@@ -159,7 +162,7 @@ export function HomePage() {
               <div className="card-header">
                 <div className="d-flex align-items-center">
                   <div>
-                    <h6 className="mb-0">Clientes con deuda </h6>
+                    <h6 className="mb-0">Clientes con deuda</h6>
                   </div>
                 </div>
               </div>
@@ -173,18 +176,24 @@ export function HomePage() {
                         <th scope="col">Debe</th>
                         <th scope="col">Fecha inicio</th>
                         <th scope="col">Fecha fin</th>
-                        <th scope="col">Termina</th>
+                        <th scope="col">Días</th>
                       </tr>
                     </thead>
                     <tbody>
                       {clientDueData.map((client: any) => (
-                        <tr key={client.id}>
+                        <tr key={client.Code}>
                           <td>{client.Code}</td>
                           <td>{client.Apellido}</td>
                           <td>{client.Due}</td>
-                          <td> {formatDate(client.StartDate)}</td>
+                          <td>{formatDate(client.StartDate)}</td>
                           <td>{formatDate(client.EndDate)}</td>
-                          <td>2</td>
+                          <td>
+                            {calculateDaysBetweenDates(
+                              client.StartDate,
+                              client.EndDate
+                            )}{" "}
+                            días
+                          </td>
                         </tr>
                       ))}
                     </tbody>

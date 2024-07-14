@@ -1,36 +1,36 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Product } from "../../../types/Product";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
-import { realizarVenta } from "../../../services/Producto";
 import Swal from "sweetalert2";
 import { useAuth } from "../../../hooks/AuthContext";
 
-interface CartIconProps {
-  cartItems: Product[];
-  onVentaExitosa: () => void;
-}
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+
+import { CartIconProps } from "../../../types/Product";
+import { realizarVenta } from "../../../services/Producto";
 
 const CartIcon: React.FC<CartIconProps> = ({ cartItems, onVentaExitosa }) => {
   const { user } = useAuth();
+
   const [showModal, setShowModal] = useState(false);
+  const handleShowModal = () => setShowModal(true);
+
   const [ventaExitosa, setVentaExitosa] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [tipoPago, setTipoPago] = useState<string>("Yape");
 
+  //---------------------------------------------------------------- PAYMENT
   useEffect(() => {
     const totalPrice = cartItems.reduce((total, item) => total + item.Price, 0);
     setTotalPrice(totalPrice);
   }, [cartItems]);
-
-  const handleShowModal = () => setShowModal(true);
 
   const handleCloseModal = () => {
     setShowModal(false);
     setVentaExitosa(false);
   };
 
+  //---------------------------------------------------------------- POST PAYMENT
   const handleRealizarVenta = async () => {
     if (totalPrice <= 0) {
       Swal.fire({

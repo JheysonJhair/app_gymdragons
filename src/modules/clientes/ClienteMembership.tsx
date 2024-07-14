@@ -1,11 +1,16 @@
+import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import { useState } from "react";
 import Swal from "sweetalert2";
+
 import { getPagoCompletoCode } from "../../services/Pago";
 import { crearCongelarDias } from "../../services/Congelar";
+import { formatDate } from "../../utils/common";
+import { useNavigate } from "react-router-dom";
 
 export function ClientMembership() {
+  const navigate = useNavigate();
+
   const [detallePago, setDetallePago] = useState<any[]>([]);
   const [client, setClient] = useState<any>();
 
@@ -14,6 +19,7 @@ export function ClientMembership() {
   const [date, setDate] = useState("");
 
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
+
   //---------------------------------------------------------------- GET BY CODE CLIENT
   const buscarClientePorCode = async () => {
     const inputCodigo = document.getElementById(
@@ -34,7 +40,17 @@ export function ClientMembership() {
 
     try {
       const cliente = await getPagoCompletoCode(code);
-
+      if (cliente.data.Payment.length === 0) {
+        Swal.fire({
+          title: "Error!",
+          text: "El cliente no ah realizado el pago!",
+          icon: "info",
+          confirmButtonText: "Aceptar",
+        });
+        setClient(null);
+        setDetallePago([]);
+        return;
+      }
       if (cliente.success) {
         Swal.fire({
           title: "Correcto!",
@@ -78,10 +94,7 @@ export function ClientMembership() {
     }
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
-  };
-
+  //---------------------------------------------------------------- FREEZING DAY
   const saveChanges = async () => {
     if (days && date) {
       try {
@@ -101,6 +114,7 @@ export function ClientMembership() {
             icon: "success",
             confirmButtonText: "Aceptar",
           });
+          navigate("/");
         } else {
           Swal.fire({
             title: "Error!",
@@ -127,14 +141,9 @@ export function ClientMembership() {
       });
     }
   };
-  const formatDate = (isoDate: any) => {
-    const date = new Date(isoDate);
 
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString();
-
-    return `${day}/${month}/${year}`;
+  const closeModal = () => {
+    setModalIsOpen(false);
   };
 
   return (
@@ -182,7 +191,7 @@ export function ClientMembership() {
                     {client && client.FirstName ? (
                       <>
                         <h6 className="mb-2 mt-2 text-center">
-                          {client.Payment[0].Membership.Name}
+                          {client.Payment[detallePago.length - 1].Membership.Name}
                         </h6>
                       </>
                     ) : (
@@ -344,7 +353,7 @@ export function ClientMembership() {
                     </tr>
                   ) : (
                     <tr key={detallePago[detallePago.length - 1].PaymentId}>
-                      <td>{detallePago[0].Membership.Name}</td>
+                      <td>{detallePago[detallePago.length - 1].Membership.Name}</td>
                       <td>
                         {formatDate(
                           detallePago[detallePago.length - 1].DatePayment
@@ -360,13 +369,15 @@ export function ClientMembership() {
                           detallePago[detallePago.length - 1].EndDate
                         )}
                       </td>
-                      <td>{detallePago[detallePago.length - 1].PrePaid}</td>
+                      <td>{detallePago[detallePago.length - 1].Membership.Price}</td>
                       <td>
-                        {detallePago[0].FreezingDay !== null
-                          ? detallePago[0].FreezingDay
-                          : 0}
+                        {detallePago[detallePago.length - 1].FreezingDay.length === 0
+                          ? "SIN CONGELAR"
+                          : detallePago[detallePago.length - 1].FreezingDay[
+                              detallePago[detallePago.length - 1].FreezingDay.length - 1
+                            ].NumberOfDay}
                       </td>
-                      <td>{detallePago[0].User.UserName}</td>
+                      <td>{detallePago[detallePago.length - 1].User.UserName}</td>
                     </tr>
                   )}
                 </tbody>

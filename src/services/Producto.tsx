@@ -1,6 +1,7 @@
 import { Product, newProduct } from "../types/Product";
 
-const API_URL2 = "https://zonafitbackend-production.up.railway.app/api/payment/insertCart";
+const API_URL2 =
+  "https://zonafitbackend-production.up.railway.app/api/payment/insertCart";
 const API_URL = "https://zonafitbackend-production.up.railway.app/api/product";
 
 interface ApiResponseAll {
@@ -41,29 +42,33 @@ export async function addProduct(
 ): Promise<{ msg: string; success: boolean }> {
   try {
     const formData = new FormData();
-    formData.append('Name', newProduct.Name || '');
-    formData.append('Description', newProduct.Description || '');
+    formData.append("Name", newProduct.Name || "");
+    formData.append("Description", newProduct.Description || "");
     if (newProduct.file) {
-      formData.append('file', newProduct.file);
+      formData.append("file", newProduct.file);
     }
-    formData.append('Price', newProduct.Price?.toString() || '');
-    formData.append('PurchasePrice', newProduct.PurchasePrice?.toString() || '');
-    formData.append('Type', newProduct.Type?.toString() || '');
-    formData.append('Stock', newProduct.Stock?.toString() || '');
+    formData.append("Price", newProduct.Price?.toString() || "");
+    formData.append(
+      "PurchasePrice",
+      newProduct.PurchasePrice?.toString() || ""
+    );
+    formData.append("Type", newProduct.Type?.toString() || "");
+    formData.append("Stock", newProduct.Stock?.toString() || "");
 
     const response = await fetch(API_URL, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     });
 
     if (!response.ok) {
-      throw new Error('Error al crear el producto');
+      throw new Error("Error al crear el producto");
     }
 
-    const responseData: { msg: string; success: boolean } = await response.json();
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
     return responseData;
   } catch (error) {
-    throw new Error('Error al crear el producto: ');
+    throw new Error("Error al crear el producto: ");
   }
 }
 
@@ -88,10 +93,9 @@ export async function updateProduct(
       await response.json();
     return responseData;
   } catch (error) {
-    throw new Error("Error al actualizar el producto: " );
+    throw new Error("Error al actualizar el producto: ");
   }
 }
-
 
 //---------------------------------------------------------------- GET BY ID PRODUCT
 export async function fetchProductById(
@@ -116,7 +120,9 @@ export async function fetchProductById(
   }
 }
 //---------------------------------------------------------------- DELETE PRODUCT
-export async function deleteProduct(productId: string): Promise<{ msg: string; success: boolean }> {
+export async function deleteProduct(
+  productId: string
+): Promise<{ msg: string; success: boolean }> {
   try {
     const url = `${API_URL}/${productId}`;
     const response = await fetch(url, {
@@ -125,23 +131,28 @@ export async function deleteProduct(productId: string): Promise<{ msg: string; s
     if (!response.ok) {
       throw new Error("Error al eliminar el producto");
     }
-    const responseData: { msg: string; success: boolean } = await response.json();
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
     return responseData;
   } catch (error) {
     throw new Error(`Error al eliminar el producto`);
   }
 }
 
-
 //---------------------------------------------------------------- CART PRODUCT
 
-export async function realizarVenta(totalPrice: number, tipoPago: string, idUsuario: number, cartItems: Product[]): Promise<{ msg: string; success: boolean }> {
-  const productsData = new Map<number, number>(); 
+export async function realizarVenta(
+  totalPrice: number,
+  tipoPago: string,
+  idUsuario: number,
+  cartItems: Product[]
+): Promise<{ msg: string; success: boolean }> {
+  const productsData = new Map<number, number>();
 
-  cartItems.forEach(item => {
+  cartItems.forEach((item) => {
     const productId = item.IdProduct;
     const currentCount = productsData.get(productId) || 0;
-    productsData.set(productId, currentCount + 1); 
+    productsData.set(productId, currentCount + 1);
   });
 
   const productsIds = Array.from(productsData.keys());
@@ -152,10 +163,8 @@ export async function realizarVenta(totalPrice: number, tipoPago: string, idUsua
     TypePayment: tipoPago,
     Products: productsIds,
     Stocks: stocks,
-    IdUser: idUsuario
+    IdUser: idUsuario,
   };
-
-  console.log(data);
 
   try {
     const response = await fetch(API_URL2, {
@@ -170,7 +179,8 @@ export async function realizarVenta(totalPrice: number, tipoPago: string, idUsua
       throw new Error("Error al realizar la venta");
     }
 
-    const responseData: { msg: string; success: boolean } = await response.json();
+    const responseData: { msg: string; success: boolean } =
+      await response.json();
     return responseData;
   } catch (error) {
     throw new Error("Error al realizar la venta: ");

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
+
 import { Product } from "../../types/Product";
 import { fetchProducts } from "../../services/Producto";
-import { NavLink } from "react-router-dom";
 import CartIcon from "./components/CartIcon";
+
 import "./Products.css";
 
 export function Products() {
@@ -11,6 +13,7 @@ export function Products() {
   const [cart, setCart] = useState<Product[]>([]);
   const [cartUpdateTrigger, setCartUpdateTrigger] = useState(false);
 
+  //---------------------------------------------------------------- GET PRODUCT
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -24,6 +27,7 @@ export function Products() {
     loadProducts();
   }, [cartUpdateTrigger]);
 
+  //---------------------------------------------------------------- SEARCH PRODUCT
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
@@ -44,7 +48,7 @@ export function Products() {
   return (
     <div style={{ marginTop: "110px" }} className="page-wrapper">
       <div className="cart-icon-container">
-      <CartIcon cartItems={cart} onVentaExitosa={handleVentaExitosa} />
+        <CartIcon cartItems={cart} onVentaExitosa={handleVentaExitosa} />
       </div>
       <div className="page-content">
         <div className="row">

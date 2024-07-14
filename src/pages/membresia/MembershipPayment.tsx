@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useAuth } from "../../hooks/AuthContext";
+
 import { Membership } from "../../types/Membership";
 import { obtenerClientePorCODE } from "../../services/Cliente";
 import { getMembresias } from "../../services/Membresias";
-import { useAuth } from "../../hooks/AuthContext";
-import Swal from "sweetalert2";
 import { realizarPago } from "../../services/Pago";
 
 export function MembershipPayment() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const [membresias, setMembresias] = useState<Membership[]>([]);
 
   const [cliente, setCliente] = useState<any | null>(null);
   const [subTotal, setSubTotal] = useState<number>(0);
@@ -28,7 +31,6 @@ export function MembershipPayment() {
   const [selectedMembershipId, setSelectedMembershipId] = useState<
     number | null
   >(null);
-  const [membresias, setMembresias] = useState<Membership[]>([]);
 
   //---------------------------------------------------------------- CALCULATE MONY
   useEffect(() => {
@@ -43,34 +45,38 @@ export function MembershipPayment() {
     setVuelto(calculatedVuelto);
   }, [subTotal, descuento, aCuenta]);
 
-//---------------------------------------------------------------- GET MEMBRESHIP
-useEffect(() => {
-  const fetchMembresias = async () => {
-    try {
-      const data = await getMembresias();
-      const membresiasHabilitadas = data.filter(m => m.Enabled === true);
-      setMembresias(membresiasHabilitadas);
-    } catch (error) {
-      console.error("Error al obtener las membresías:", error);
-    }
-  };
+  //---------------------------------------------------------------- GET MEMBRESHIP
+  useEffect(() => {
+    const fetchMembresias = async () => {
+      try {
+        const data = await getMembresias();
+        const membresiasHabilitadas = data.filter((m) => m.Enabled === true);
+        setMembresias(membresiasHabilitadas);
+      } catch (error) {
+        console.error("Error al obtener las membresías:", error);
+      }
+    };
 
-  fetchMembresias();
-}, []);
+    fetchMembresias();
+  }, []);
 
   //---------------------------------------------------------------- GET BY CODE CLIENT
   const buscarClientePorCode = async (dni: string) => {
-    const clienteObtenido = await obtenerClientePorCODE(dni);
-    setCliente(clienteObtenido.data !== null ? clienteObtenido.data : null);
+    if (dni.length > 0) {
+      const clienteObtenido = await obtenerClientePorCODE(dni);
+      if (clienteObtenido.data !== null) {
+        setCliente(clienteObtenido.data);
+      }
+    }
   };
 
-  //---------------------------------------------------------------- GET BY ID CLIENT
+  //---------------------------------------------------------------- POST PAYMENT
   const handlePayment = async () => {
     if (!cliente?.FirstName || !cliente?.LastName) {
       Swal.fire({
         icon: "error",
         title: "Campos vacios!",
-        text: "Complete los campos del cliente.",
+        text: "Busque un cliente por código.",
       });
       return;
     }
@@ -79,7 +85,7 @@ useEffect(() => {
       Swal.fire({
         icon: "error",
         title: "Campos vacios!",
-        text: "Complete el formulario de membresía.",
+        text: "Seleccione el plan de membresía.",
       });
       return;
     }
@@ -103,15 +109,15 @@ useEffect(() => {
         Total: total,
         Discount: descuento,
         PriceDiscount: subTotal,
-        QuantityDays: 0,
+        QuantityDays: calculateDaysBetweenDates(fechaInicio,fechaFin),
         DatePayment: fechaPago,
         Due: debe,
-        PrePaid: total,
+        PrePaid: aCuenta,
         PaymentType: formaPago,
         PaymentReceipt: reciboPago,
         Observation: Observation,
       };
-
+      console.log(data)
       const response = await realizarPago(data);
       if (response.success) {
         Swal.fire({
@@ -137,6 +143,13 @@ useEffect(() => {
         confirmButtonText: "Aceptar",
       });
     }
+  };
+
+  const calculateDaysBetweenDates = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const differenceInTime = end.getTime() - start.getTime();
+    return Math.ceil(differenceInTime / (1000 * 3600 * 24));
   };
 
   return (
@@ -218,7 +231,8 @@ useEffect(() => {
                             className="form-control"
                             id="input01"
                             placeholder="Nombre"
-                            value={cliente?.FirstName || ""}
+                            value={cliente ? cliente.FirstName : ""}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -241,6 +255,7 @@ useEffect(() => {
                             id="input02"
                             placeholder="Apellidos"
                             value={cliente?.LastName || ""}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -263,6 +278,7 @@ useEffect(() => {
                             id="input03"
                             placeholder="Dni"
                             value={cliente?.Document || ""}
+                            readOnly
                           />
                         </div>
                       </div>
@@ -292,6 +308,7 @@ useEffect(() => {
                         className="form-select"
                         id="input06"
                         value={cliente?.Gender || ""}
+                        disabled
                       >
                         <option value="">Seleccionar genero</option>
                         <option value="Masculino">Masculino</option>
@@ -316,6 +333,7 @@ useEffect(() => {
                         id="input08"
                         placeholder="Número"
                         value={cliente?.PhoneNumber || ""}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -393,7 +411,7 @@ useEffect(() => {
                           );
                           if (selectedMembresia) {
                             const precio = Number(selectedMembresia.Price);
-                            const descuento = precio * 0.1;
+                            const descuento = precio * 0;
                             const subTotal = precio - descuento;
                             setSubTotal(subTotal);
                             setDescuento(descuento);
@@ -450,7 +468,7 @@ useEffect(() => {
                 </div>
                 <div className="row mb-3">
                   <label htmlFor="input50" className="col-sm-5 col-form-label">
-                    Descuento (10%)
+                    Descuento (0%)
                   </label>
                   <div className="col-sm-7">
                     <div className="input-group">

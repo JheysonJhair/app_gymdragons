@@ -23,3 +23,15 @@ export type newProduct = {
 export type ErrorMessages = {
   [key in keyof Product]?: string;
 };
+
+export interface CartIconProps {
+  cartItems: Product[];
+  onVentaExitosa: () => void;
+}
+
+export interface EditProductModalProps {
+  show: boolean;
+  onHide: () => void;
+  product: Product | null;
+  onUpdate: (updatedProduct: Product) => void;
+}

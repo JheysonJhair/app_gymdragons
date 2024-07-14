@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+
 import { crearCliente } from "../../services/Cliente";
 import { Client, ErrorMessages } from "../../types/Client";
-import { useNavigate } from "react-router-dom";
+
 import {
   validateRequiredField,
   validatePhoneNumber,
@@ -10,6 +12,7 @@ import {
 
 export function NewClient() {
   const navigate = useNavigate();
+  
   const [nuevoCliente, setNuevoCliente] = useState<Partial<Client>>({});
   const [errorMessages, setErrorMessages] = useState<ErrorMessages>({
     FirstName: "",
@@ -18,6 +21,7 @@ export function NewClient() {
     PhoneNumber: "",
   });
 
+  //---------------------------------------------------------------- REGISTER CLIENT
   const handleRegisterClient = async () => {
     const requiredFields: (keyof ErrorMessages)[] = [
       "FirstName",
@@ -76,7 +80,7 @@ export function NewClient() {
       });
     }
   };
-
+  //------------------------------------------ CHANGE INPUT
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -94,7 +98,7 @@ export function NewClient() {
       [name]: validateField(name as keyof ErrorMessages, value),
     }));
   };
-
+  //------------------------------------------ VALIDATIONS
   const validateField = (
     name: keyof ErrorMessages,
     value: string | undefined
@@ -275,7 +279,8 @@ export function NewClient() {
               </div>
               <div className="row mb-3">
                 <label htmlFor="input06" className="col-sm-5 col-form-label">
-                  Tipo de documento <span style={{ color: "#999" }}>(Opcional)</span>
+                  Tipo de documento{" "}
+                  <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
                 <div className="col-sm-7">
                   <div className="input-group">
@@ -368,7 +373,8 @@ export function NewClient() {
               </div>
               <div className="row mb-3">
                 <label htmlFor="input08" className="col-sm-5 col-form-label">
-                  Fecha de nacimiento <span style={{ color: "#999" }}>(Opcional)</span>
+                  Fecha de nacimiento{" "}
+                  <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
                 <div className="col-sm-7">
                   <div className="input-group">
@@ -402,7 +408,8 @@ export function NewClient() {
               </div>
               <div className="row mb-3">
                 <label htmlFor="input09" className="col-sm-5 col-form-label">
-                  Correo Electrónico <span style={{ color: "#999" }}>(Opcional)</span>
+                  Correo Electrónico{" "}
+                  <span style={{ color: "#999" }}>(Opcional)</span>
                 </label>
                 <div className="col-sm-7">
                   <div className="input-group">

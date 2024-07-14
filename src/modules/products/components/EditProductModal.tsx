@@ -1,15 +1,9 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { Product } from "../../../types/Product";
-import { updateProduct } from "../../../services/Producto";
 import Swal from "sweetalert2";
 
-interface EditProductModalProps {
-  show: boolean;
-  onHide: () => void;
-  product: Product | null;
-  onUpdate: (updatedProduct: Product) => void;
-}
+import { EditProductModalProps } from "../../../types/Product";
+import { updateProduct } from "../../../services/Producto";
 
 const EditProductModal: React.FC<EditProductModalProps> = ({
   show,
@@ -27,13 +21,17 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     Stock: product?.Stock || 0,
   });
 
+  const [errorMessages, setErrorMessages] = useState({
+    Type: "",
+  });
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: name === "Type" ? parseInt(value) : value,
     }));
   };
 
@@ -41,14 +39,14 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     if (product) {
       try {
         const response = await updateProduct(product.IdProduct, formData);
-        onUpdate(response.data);
-        onHide();
         if (!response.success) {
           throw new Error(response.msg);
         }
+        onUpdate(response.data);
+        onHide();
         Swal.fire("Actualizado", response.msg, "success");
       } catch (error) {
-        Swal.fire("Error", "Oppss, algo salio mal!", "error");
+        Swal.fire("Error", "Oppss, algo salió mal!", "error");
       }
     }
   };
@@ -98,12 +96,21 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
           </Form.Group>
           <Form.Group controlId="productType">
             <Form.Label>Tipo</Form.Label>
-            <Form.Control
-              type="number"
+            <select
+              className={`form-select ${errorMessages.Type ? "is-invalid" : ""}`}
               name="Type"
               value={formData.Type}
-              onChange={handleChange}
-            />
+              onChange={(e) => {
+                handleChange(e);
+                setErrorMessages({ ...errorMessages, Type: "" });
+              }}
+              required
+            >
+              <option value={0}>Seleccionar tipo</option>
+              <option value={1}>Gaseosa</option>
+              <option value={2}>Energizante</option>
+              <option value={3}>Alcoholicas</option>
+            </select>
           </Form.Group>
           <Form.Group controlId="productStock">
             <Form.Label>Stock</Form.Label>
