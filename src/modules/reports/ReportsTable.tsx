@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchIncomeMembershipByDateRange } from "../../services/Reports";
+import { fetchIncomeMembershipByDateRange, fetchIncomeProductByDateRange, fetchPaymentByDateRange } from "../../services/Reports";
 
 // Define la interfaz Payment
 interface Payment {
@@ -15,17 +15,7 @@ interface Payment {
   PaymentType: string;
 }
 
-// Función de servicio para obtener pagos por rango de fechas
-async function fetchPaymentsByDateRange(startDate: string, endDate: string): Promise<{ success: boolean; data: Payment[] }> {
-  const response = await fetch(`https://zonafitbackend-production.up.railway.app/api/payment/getPaymentByDateRange`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ startDate, endDate }),
-  });
-  return await response.json();
-}
+
 
 export function ReportsTable() {
   const [ingresoTotalMembresias, setIngresoTotalMembresias] = useState(0);
@@ -58,13 +48,14 @@ export function ReportsTable() {
         setIngresoTotalMembresias(data.data[0]["Ingreso Total"]);
       }
 
-      const data2 = await fetchIncomeMembershipByDateRange(fechaInicio, fechaFin);
+      const data2 = await fetchIncomeProductByDateRange(fechaInicio, fechaFin);
       if (data2.success) {
         setProductData(data2.data[0]);
         setIngresoTotalProductos(data2.data[0]["Ingreso Total"]);
       }
 
-      const paymentDataResponse = await fetchPaymentsByDateRange(fechaInicio, fechaFin);
+      const paymentDataResponse = await fetchPaymentByDateRange(fechaInicio, fechaFin);
+      console.log(paymentData)
       if (paymentDataResponse.success) {
         setPaymentData(paymentDataResponse.data);
       }
